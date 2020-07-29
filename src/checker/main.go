@@ -10,13 +10,13 @@ import (
 
 var (
 	// Status holds the status information about every service registered
-	Status AllEndpointsStatus
+	Status AllEndpointsStatus = make(map[string]OneEndpointStatus)
 )
 
-// AllEndpointsStatus defines a map containing all services and their statuses
-type AllEndpointsStatus map[string]map[string]string
 // OneEndpointStatus defines the status of one endpoint status
 type OneEndpointStatus map[string]string
+// AllEndpointsStatus defines a map containing all services and their statuses
+type AllEndpointsStatus map[string]OneEndpointStatus
 
 // JSON returns a json-formatted []byte
 func (as AllEndpointsStatus) JSON() ([]byte, error) {
@@ -52,20 +52,16 @@ func CheckService(endpoint string, statusCodes []int) error {
 	}
 	for _, statusCode := range statusCodes {
 		if r.StatusCode == statusCode {
-			Status = map[string]map[string]string{
-				endpoint: map[string]string{
+			Status[endpoint] = map[string]string{
 					"status": "up",
-					"code": strconv.Itoa(statusCode),
-				},
+					"code": strconv.Itoa(r.StatusCode),
 			}
-		} else {
-			Status = map[string]map[string]string{
-				endpoint: map[string]string{
-					"status": "down",
-					"code": strconv.Itoa(statusCode),
-				},
-			}
+			return nil
 		}
+	}
+	Status[endpoint] = map[string]string{
+			"status": "down",
+			"code": strconv.Itoa(r.StatusCode),
 	}
 	return nil
 }

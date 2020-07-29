@@ -1,3 +1,11 @@
 {
-    "https://mattermost.leon.wtf": [400, 200]
+    "https://cloud.leon.wtf": [200],
+    "https://element.leon.wtf": [200],
+    "https://git.leon.wtf": [200],
+    "https://ide.leon.wtf": [401, 200],
+    "https://mail.leon.wtf": [200],
+    "https://matrix.leon.wtf": [200],
+    "https://mattermost.leon.wtf": [200],
+    "https://media.leon.wtf": [200],
+    "https://r.leon.wtf": [200, 403]
 }
