@@ -1,8 +1,8 @@
 package api
 
 import (
+	"log"
 	"errors"
-	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
 	
@@ -49,7 +49,7 @@ func oneServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 // Start starts the API
 func Start() {
-	fmt.Println("Starting Status Server at " + apiHost)
+	log.Println("Starting status API-server at " + apiHost)
 	// endpoints
 	router := mux.NewRouter()
 	router.HandleFunc("/status", statusHandler).Methods("GET")
@@ -60,6 +60,5 @@ func Start() {
 			Addr: apiHost,
 			Handler: router,
 	}
-	fmt.Println("Up")
 	panic(server.ListenAndServe()) // ListenAndServer never returns a non-nil error
 }

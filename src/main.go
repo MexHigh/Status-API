@@ -19,6 +19,7 @@ func main() {
 	}
 
 	checker.CheckAllServices()
+	go checker.Updater(600) // 10 Minutes
 
 	api.Start()
 

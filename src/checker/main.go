@@ -1,6 +1,8 @@
 package checker
 
 import (
+	"log"
+	"time"
 	"errors"
 	"strconv"
 	"encoding/json"
@@ -75,4 +77,15 @@ func CheckAllServices() error {
 		}
 	}
 	return nil
+}
+
+// Updater keeps track of the records in the config.json file.
+// This method is intended to be ran as goroutine (blocks )
+func Updater(interval int) {
+	log.Println("Starting updater routine with an interval of " + strconv.Itoa(interval) + " seconds")
+	for {
+		CheckAllServices();
+		// wait
+		time.Sleep(time.Duration(interval) * time.Second);
+	}
 }
