@@ -41,7 +41,7 @@
     },
     "URL Shortener": {
         "protocol": "http",
-        "url": "https://media.leon.wtf",
+        "url": "https://r.leon.wtf",
         "success_on": [200, 403]
     }
 }
