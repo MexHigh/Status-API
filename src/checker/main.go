@@ -1,12 +1,13 @@
 package checker
 
 import (
-	"log"
-	"time"
-	"errors"
-	"strconv"
 	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
+	"strconv"
+	"time"
+
 	"../config"
 )
 
@@ -17,6 +18,7 @@ var (
 
 // OneEndpointStatus defines the status of one endpoint status
 type OneEndpointStatus map[string]string
+
 // AllEndpointsStatus defines a map containing all services and their statuses
 type AllEndpointsStatus map[string]OneEndpointStatus
 
@@ -55,17 +57,17 @@ func CheckService(name string, endpoint config.EndpointConfig) error {
 	for _, statusCode := range endpoint.SuccessOn {
 		if r.StatusCode == statusCode {
 			Status[name] = map[string]string{
-					"url": endpoint.URL,
-					"status": "up",
-					"code": strconv.Itoa(r.StatusCode),
+				"url":    endpoint.URL,
+				"status": "up",
+				"code":   strconv.Itoa(r.StatusCode),
 			}
 			return nil
 		}
 	}
 	Status[name] = map[string]string{
-			"url": endpoint.URL,
-			"status": "down",
-			"code": strconv.Itoa(r.StatusCode),
+		"url":    endpoint.URL,
+		"status": "down",
+		"code":   strconv.Itoa(r.StatusCode),
 	}
 	return nil
 }
@@ -86,8 +88,8 @@ func CheckAllServices() error {
 func Updater(interval int) {
 	log.Println("Starting updater routine with an interval of " + strconv.Itoa(interval) + " seconds")
 	for {
-		CheckAllServices();
+		CheckAllServices()
 		// wait
-		time.Sleep(time.Duration(interval) * time.Second);
+		time.Sleep(time.Duration(interval) * time.Second)
 	}
 }

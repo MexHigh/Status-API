@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
+
 	"./api"
-	"./config"
 	"./checker"
+	"./config"
 )
 
 func main() {

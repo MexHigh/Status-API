@@ -1,16 +1,17 @@
 package api
 
 import (
-	"log"
 	"errors"
+	"log"
 	"net/http"
+
 	"github.com/gorilla/mux"
-	
+
 	"../checker"
 )
 
 const (
-    apiHost = "0.0.0.0:3002"
+	apiHost = "0.0.0.0:3002"
 )
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
@@ -57,8 +58,8 @@ func Start() {
 	router.HandleFunc("/service", oneServiceHandler).Methods("GET")
 	// serve
 	server := &http.Server{
-			Addr: apiHost,
-			Handler: router,
+		Addr:    apiHost,
+		Handler: router,
 	}
 	panic(server.ListenAndServe()) // ListenAndServer never returns a non-nil error
 }
