@@ -28,9 +28,9 @@ func allServicesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func oneServiceHandler(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["url"]
+	keys, ok := r.URL.Query()["name"]
 	if !ok {
-		respondError(&w, errors.New("Please provide ?url= parameter"))
+		respondError(&w, errors.New("Please provide ?name= parameter"))
 		return
 	}
 	status, err := checker.Status.GetEndpoint(keys[0])

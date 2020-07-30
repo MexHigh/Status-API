@@ -1,11 +1,47 @@
 {
-    "https://cloud.leon.wtf": [200],
-    "https://element.leon.wtf": [200],
-    "https://git.leon.wtf": [200],
-    "https://ide.leon.wtf": [401, 200],
-    "https://mail.leon.wtf": [200],
-    "https://matrix.leon.wtf": [200],
-    "https://mattermost.leon.wtf": [200],
-    "https://media.leon.wtf": [200],
-    "https://r.leon.wtf": [200, 403]
+    "Nextcloud": {
+        "protocol": "http",
+        "url": "https://cloud.leon.wtf",
+        "success_on": [200]
+    },
+    "Element": {
+        "protocol": "http",
+        "url": "https://element.leon.wtf",
+        "success_on": [200]
+    },
+    "Gitlab": {
+        "protocol": "http",
+        "url": "https://git.leon.wtf",
+        "success_on": [200]
+    },
+    "Cloud IDE": {
+        "protocol": "http",
+        "url": "https://ide.leon.wtf",
+        "success_on": [401, 200]
+    },
+    "Webmail": {
+        "protocol": "http",
+        "url": "https://mail.leon.wtf",
+        "success_on": [200]
+    },
+    "Matrix": {
+        "protocol": "http",
+        "url": "https://matrix.leon.wtf",
+        "success_on": [200]
+    },
+    "Mattermost": {
+        "protocol": "http",
+        "url": "https://mattermost.leon.wtf",
+        "success_on": [200]
+    },
+    "Mediaserver": {
+        "protocol": "http",
+        "url": "https://media.leon.wtf",
+        "success_on": [200]
+    },
+    "URL Shortener": {
+        "protocol": "http",
+        "url": "https://media.leon.wtf",
+        "success_on": [200, 403]
+    }
 }

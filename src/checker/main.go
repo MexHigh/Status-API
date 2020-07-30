@@ -39,29 +39,31 @@ func (os OneEndpointStatus) JSON() ([]byte, error) {
 }
 
 // GetEndpoint returns a OneEndpointStatus of a AllEndpointsStatus
-func (as AllEndpointsStatus) GetEndpoint(endpoint string) (OneEndpointStatus, error) {
-	if os, ok := as[endpoint]; ok {
+func (as AllEndpointsStatus) GetEndpoint(name string) (OneEndpointStatus, error) {
+	if os, ok := as[name]; ok {
 		return os, nil
 	}
 	return nil, errors.New("Endpoint does not exist in config.json")
 }
 
 // CheckService checks, if an endpoint returns one of the specified status codes
-func CheckService(endpoint string, statusCodes []int) error {
-	r, err := http.Get(endpoint)
+func CheckService(name string, endpoint config.EndpointConfig) error {
+	r, err := http.Get(endpoint.URL)
 	if err != nil {
 		return err
 	}
-	for _, statusCode := range statusCodes {
+	for _, statusCode := range endpoint.SuccessOn {
 		if r.StatusCode == statusCode {
-			Status[endpoint] = map[string]string{
+			Status[name] = map[string]string{
+					"url": endpoint.URL,
 					"status": "up",
 					"code": strconv.Itoa(r.StatusCode),
 			}
 			return nil
 		}
 	}
-	Status[endpoint] = map[string]string{
+	Status[name] = map[string]string{
+			"url": endpoint.URL,
 			"status": "down",
 			"code": strconv.Itoa(r.StatusCode),
 	}
@@ -70,8 +72,8 @@ func CheckService(endpoint string, statusCodes []int) error {
 
 // CheckAllServices checks all services mentioned in the config.json
 func CheckAllServices() error {
-	for endpoint, statusCodes := range config.Conf {
-		err := CheckService(endpoint, statusCodes)
+	for name, endpoint := range config.Endpoints {
+		err := CheckService(name, endpoint)
 		if err != nil {
 			return err
 		}

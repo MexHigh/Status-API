@@ -13,7 +13,7 @@ func main() {
 	flag.Parse()
 
 	var err error
-	config.Conf, err = config.LoadConfigFromFile(*configPath)
+	config.Endpoints, err = config.LoadEndpointsFromFile(*configPath)
 	if err != nil {
 		panic(err)
 	}
