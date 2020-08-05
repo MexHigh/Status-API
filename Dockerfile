@@ -9,4 +9,4 @@ RUN go install -v ./...
 EXPOSE 3002
 #VOLUME /go/src/app/config.json
 
-CMD ["app"]
+CMD ["status-api"]
