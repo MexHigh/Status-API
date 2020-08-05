@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	configPath := flag.String("config", "../config.json", "Path to the config.json file")
+	configPath := flag.String("config", "./config.json", "Path to the config.json file")
 	flag.Parse()
 
 	log.Println("Loading endpoints from", *configPath)

@@ -1,0 +1,15 @@
+{
+    "Nextcloud": {
+        "protocol": "http",
+        "uri": "https://cloud.example.org",
+        "success_on": [200]
+    },
+    "Mailserver": {
+        "protocol": "smtp",
+        "uri": "smtp.example.org"
+    },
+    "Minecraft Server": {
+        "protocol": "minecraft",
+        "uri": "mc1.example.org"
+    }
+}
