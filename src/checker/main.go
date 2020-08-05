@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"../config"
+	"status-api/config"
 )
 
 var (

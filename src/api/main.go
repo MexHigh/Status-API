@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"../checker"
+	"status-api/checker"
 )
 
 const (

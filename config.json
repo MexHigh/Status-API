@@ -17,7 +17,7 @@
     "Cloud IDE": {
         "protocol": "http",
         "url": "https://ide.leon.wtf",
-        "success_on": [401, 200]
+        "success_on": [200, 401]
     },
     "Webmail": {
         "protocol": "http",
@@ -41,7 +41,7 @@
     },
     "URL Shortener": {
         "protocol": "http",
-        "url": "https://r.leon.wtf",
+        "url": "https://r.leon.wtf/admin",
         "success_on": [200, 403]
     }
 }
