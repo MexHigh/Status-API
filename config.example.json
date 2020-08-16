@@ -1,15 +1,19 @@
 {
     "Nextcloud": {
         "protocol": "http",
-        "uri": "https://cloud.example.org",
+        "url": "https://cloud.example.org",
         "success_on": [200]
     },
     "Mailserver": {
         "protocol": "smtp",
-        "uri": "smtp.example.org"
+        "url": "smtp.example.org"
     },
     "Minecraft Server": {
         "protocol": "minecraft",
-        "uri": "mc1.example.org"
+        "url": "mc1.example.org:25565"
+    },
+    "Teamspeak 3": {
+        "protocol": "teamspeak",
+        "url": "ts.leon.wtf:9987"
     }
 }

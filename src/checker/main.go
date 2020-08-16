@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -13,18 +12,18 @@ import (
 
 var (
 	// Status holds the status information about every service registered
-	Status AllEndpointsStatus = make(map[string]OneEndpointStatus)
+	Status EndpointsStatusList = make(EndpointsStatusList)
 )
 
-// OneEndpointStatus defines the status of one endpoint status
-type OneEndpointStatus map[string]string
+// EndpointStatus defines the status of one endpoint status
+type EndpointStatus map[string]string
 
-// AllEndpointsStatus defines a map containing all services and their statuses
-type AllEndpointsStatus map[string]OneEndpointStatus
+// EndpointsStatusList is a map containing all services and their statuses
+type EndpointsStatusList map[string]EndpointStatus
 
 // JSON returns a json-formatted []byte
-func (as AllEndpointsStatus) JSON() ([]byte, error) {
-	json, err := json.MarshalIndent(as, "", "    ")
+func (esl EndpointsStatusList) JSON() ([]byte, error) {
+	json, err := json.MarshalIndent(esl, "", "    ")
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +31,8 @@ func (as AllEndpointsStatus) JSON() ([]byte, error) {
 }
 
 // JSON returns a json-formatted []byte
-func (os OneEndpointStatus) JSON() ([]byte, error) {
-	json, err := json.MarshalIndent(os, "", "    ")
+func (es EndpointStatus) JSON() ([]byte, error) {
+	json, err := json.MarshalIndent(es, "", "    ")
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +40,8 @@ func (os OneEndpointStatus) JSON() ([]byte, error) {
 }
 
 // GetEndpoint returns a OneEndpointStatus of a AllEndpointsStatus
-func (as AllEndpointsStatus) GetEndpoint(name string) (OneEndpointStatus, error) {
-	if os, ok := as[name]; ok {
+func (esl EndpointsStatusList) GetEndpoint(name string) (EndpointStatus, error) {
+	if os, ok := esl[name]; ok {
 		return os, nil
 	}
 	return nil, errors.New("Endpoint does not exist in config.json")
@@ -50,24 +49,17 @@ func (as AllEndpointsStatus) GetEndpoint(name string) (OneEndpointStatus, error)
 
 // CheckService checks, if an endpoint returns one of the specified status codes
 func CheckService(name string, endpoint config.EndpointConfig) error {
-	r, err := http.Get(endpoint.URL)
-	if err != nil {
-		return err
-	}
-	for _, statusCode := range endpoint.SuccessOn {
-		if r.StatusCode == statusCode {
-			Status[name] = map[string]string{
-				"url":    endpoint.URL,
-				"status": "up",
-				"code":   strconv.Itoa(r.StatusCode),
-			}
-			return nil
+	switch endpoint.Protocol {
+	case "http":
+		if err := checkHTTP(name, endpoint); err != nil {
+			return err
 		}
-	}
-	Status[name] = map[string]string{
-		"url":    endpoint.URL,
-		"status": "down",
-		"code":   strconv.Itoa(r.StatusCode),
+	case "minecraft":
+		if err := checkMinecraft(name, endpoint); err != nil {
+			return err
+		}
+	default:
+		return errors.New("Protocol " + endpoint.Protocol + " not supported")
 	}
 	return nil
 }
@@ -88,7 +80,9 @@ func CheckAllServices() error {
 func Updater(interval int) {
 	log.Println("Starting updater routine with an interval of " + strconv.Itoa(interval) + " seconds")
 	for {
-		CheckAllServices()
+		if err := CheckAllServices(); err != nil {
+			panic(err)
+		}
 		// wait
 		time.Sleep(time.Duration(interval) * time.Second)
 	}

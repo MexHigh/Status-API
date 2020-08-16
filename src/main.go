@@ -22,7 +22,6 @@ func main() {
 	}
 
 	log.Println("Retrieving initial service states")
-	checker.CheckAllServices()
 	go checker.Updater(600) // 10 Minutes
 
 	api.Start()
