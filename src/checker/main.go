@@ -58,6 +58,10 @@ func CheckService(name string, endpoint config.EndpointConfig) error {
 		if err := checkMinecraft(name, endpoint); err != nil {
 			return err
 		}
+	case "teamspeak":
+		if err := checkTeamspeak(name, endpoint); err != nil {
+			return err
+		}
 	default:
 		return errors.New("Protocol " + endpoint.Protocol + " not supported")
 	}

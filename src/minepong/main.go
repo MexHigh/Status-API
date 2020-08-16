@@ -1,5 +1,8 @@
 package minepong
 
+// This file was written by Andrew Tian
+// https://github.com/andrewtian/minepong
+
 import (
 	"bufio"
 	"bytes"
@@ -15,6 +18,7 @@ const (
 	protocolVersion = 0x47
 )
 
+// Pong is the response from a minecraft Ping request
 type Pong struct {
 	Version struct {
 		Name     string
@@ -29,16 +33,18 @@ type Pong struct {
 	FavIcon     string      `json:"favicon"`
 }
 
+// Ping retrieves some general informations about a running
+// minecraft server
 func Ping(conn net.Conn, host string) (*Pong, error) {
-	if err := SendHandshake(conn, host); err != nil {
+	if err := sendHandshake(conn, host); err != nil {
 		return nil, err
 	}
 
-	if err := SendStatusRequest(conn); err != nil {
+	if err := sendStatusRequest(conn); err != nil {
 		return nil, err
 	}
 
-	pong, err := ReadPong(conn)
+	pong, err := readPong(conn)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +63,7 @@ func makePacket(pl *bytes.Buffer) *bytes.Buffer {
 	return &buf
 }
 
-func SendHandshake(conn net.Conn, host string) error {
+func sendHandshake(conn net.Conn, host string) error {
 	pl := &bytes.Buffer{}
 
 	// packet id
@@ -92,7 +98,7 @@ func SendHandshake(conn net.Conn, host string) error {
 	return nil
 }
 
-func SendStatusRequest(conn net.Conn) error {
+func sendStatusRequest(conn net.Conn) error {
 	pl := &bytes.Buffer{}
 
 	// send request zero
@@ -118,7 +124,7 @@ func encodeVarint(x uint64) []byte {
 	return buf[0:n]
 }
 
-func ReadPong(rd io.Reader) (*Pong, error) {
+func readPong(rd io.Reader) (*Pong, error) {
 	r := bufio.NewReader(rd)
 	nl, err := binary.ReadUvarint(r)
 	if err != nil {
