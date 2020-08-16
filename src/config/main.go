@@ -15,9 +15,14 @@ type EndpointList map[string]EndpointConfig
 
 // EndpointConfig holds the configuration for a specific endpoint
 type EndpointConfig struct {
-	Protocol  string `json:"protocol"`
-	URL       string `json:"url"`
-	SuccessOn []int  `json:"success_on"`
+	Protocol   string `json:"protocol"`
+	URL        string `json:"url"`
+	TSQueryURL string `json:"query_url,omitempty"`
+	Credentials struct {
+		Username string `json:"username"`
+		Password string	`json:"password"`
+	} `json:"credentials,omitempty"`
+	SuccessOn  []int  `json:"success_on,omitempty"`
 }
 
 // LoadEndpointsFromFile returns a Config type initialized from the json file

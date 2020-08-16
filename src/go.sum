@@ -1,2 +1,6 @@
 github.com/gorilla/mux v1.7.4 h1:VuZ8uybHlWmqV03+zRzdwKL4tUnIp1MAQtp1mIFE1bc=
 github.com/gorilla/mux v1.7.4/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/mitchellh/mapstructure v1.3.3 h1:SzB1nHZ2Xi+17FP0zVQBHIZqvwRN9408fJO8h+eeNA8=
+github.com/mitchellh/mapstructure v1.3.3/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
+github.com/multiplay/go-ts3 v1.0.0 h1:loxtEFqvYtpoGh1jOqEt6aDzctYuQsi3vb3dMpvWiWw=
+github.com/multiplay/go-ts3 v1.0.0/go.mod h1:14S6cS3fLNT3xOytrA/DkRyAFNuQLMLEqOYAsf87IbQ=
