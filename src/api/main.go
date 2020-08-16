@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	apiHost = "0.0.0.0:3011"
+	apiHost = "0.0.0.0:3002"
 )
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
