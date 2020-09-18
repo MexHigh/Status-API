@@ -10,7 +10,7 @@ before_script:
 build_image:
   stage: build
   only:
-    -master
+    - master
   script:
     - docker build -t $CI_REGISTRY/$CI_PROJECT_DIR:latest .
 
