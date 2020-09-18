@@ -12,11 +12,11 @@ build_image:
   only:
     - master
   script:
-    - docker build -t $CI_REGISTRY/$CI_PROJECT_DIR:latest .
+    - docker build -t $CI_REGISTRY/$CI_PROJECT_PATH:latest .
 
 push_image:
   stage: push
   only:
     - master
   script:
-    - docker push $CI_REGISTRY/$CI_PROJECT_DIR:latest
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:latest
