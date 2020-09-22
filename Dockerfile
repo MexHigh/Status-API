@@ -1,12 +1,14 @@
-FROM golang:1.14
-
+FROM golang:1.14 AS builder
 WORKDIR /go/src/app
 COPY src/ .
-
 RUN go get -d -v ./...
-RUN go install -v ./...
+RUN CGO_ENABLED=0 go install -v ./...
 
-EXPOSE 3002
+FROM scratch
+LABEL maintainer="Leon Schmidt"
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /go/bin/status-api /status-api
 #VOLUME /go/src/app/config.json
-
-CMD ["status-api"]
+EXPOSE 3002
+ENTRYPOINT ["/status-api"]
