@@ -11,11 +11,15 @@ import (
 )
 
 func checkMinecraft(name string, endpoint config.EndpointConfig) error {
-	conn, err := net.DialTimeout("tcp", endpoint.URL, time.Duration(5*time.Second))
+	conn, err := net.DialTimeout(
+		"tcp", 
+		endpoint.MinecraftConfig.URL,
+		time.Duration(5*time.Second),
+	)
 	if err != nil {
 		if strings.Contains(err.Error(), "i/o timeout") {
 			Status[name] = map[string]string{
-				"url":    endpoint.URL,
+				"url":    endpoint.FriedlyURL,
 				"status": "down",
 			}
 		} else { // for example "no such host"
@@ -23,12 +27,12 @@ func checkMinecraft(name string, endpoint config.EndpointConfig) error {
 		}
 		return nil
 	}
-	pong, err := minepong.Ping(conn, endpoint.URL)
+	pong, err := minepong.Ping(conn, endpoint.MinecraftConfig.URL)
 	if err != nil {
 		return err
 	}
 	Status[name] = map[string]string{
-		"url":     endpoint.URL,
+		"url":     endpoint.FriedlyURL,
 		"status":  "up",
 		"players": strconv.Itoa(pong.Players.Online) + "/" + strconv.Itoa(pong.Players.Max),
 	}

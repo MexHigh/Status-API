@@ -1,19 +1,20 @@
 {
     "Nextcloud": {
-        "protocol": "http",
-        "url": "https://cloud.example.org",
-        "success_on": [200]
-    },
-    "Mailserver": {
-        "protocol": "smtp",
-        "url": "smtp.example.org"
+        "friendly_url": "https://cloud.example.org",
+        "http": {
+           "success_codes": "200" 
+        }
     },
     "Minecraft Server": {
-        "protocol": "minecraft",
-        "url": "mc1.example.org:25565"
+        "friendly_url": "https://minecraft.example.org",
+        "minecraft": {
+            "url": "mc1.example.org:25565"
+        }
     },
     "Teamspeak 3": {
-        "protocol": "teamspeak",
-        "url": "ts.leon.wtf:9987"
+        "friendly_url": "ts3server://ts.example.org?port=9987",
+        "teamspeak": {
+            "query_url": "192.168.13.37:9987"
+        }
     }
 }
