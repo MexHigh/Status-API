@@ -49,7 +49,7 @@ func (esl EndpointsStatusList) GetEndpoint(name string) (EndpointStatus, error) 
 
 // CheckService checks, if an endpoint returns one of the specified status codes
 func CheckService(name string, endpoint config.EndpointConfig) error {
-	switch endpoint.Protocol {
+	switch p := endpoint.Protocol(); p {
 	case "http":
 		if err := checkHTTP(name, endpoint); err != nil {
 			return err
@@ -63,7 +63,7 @@ func CheckService(name string, endpoint config.EndpointConfig) error {
 			return err
 		}
 	default:
-		return errors.New("Protocol " + endpoint.Protocol + " not supported")
+		return errors.New("Protocol " + p + " not supported")
 	}
 	return nil
 }

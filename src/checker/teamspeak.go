@@ -7,11 +7,11 @@ import (
 )
 
 func checkTeamspeak(name string, endpoint config.EndpointConfig) error {
-	tsclient, err := ts3.NewClient(endpoint.TSQueryURL)
+	tsclient, err := ts3.NewClient(endpoint.TSConfig.QueryURL)
 	if err != nil {
 		// on failure
 		Status[name] = map[string]string{
-			"url":    endpoint.URL,
+			"url":    endpoint.FriedlyURL,
 			"status": "down",
 		}
 		return nil
@@ -20,7 +20,7 @@ func checkTeamspeak(name string, endpoint config.EndpointConfig) error {
 	
 	// on success
 	Status[name] = map[string]string{
-		"url":    endpoint.URL,
+		"url":    endpoint.FriedlyURL,
 		"status": "up",
 	}
 	return nil
