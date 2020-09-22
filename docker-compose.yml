@@ -8,4 +8,4 @@ services:
     ports:
       - 3002:3002
     volumes:
-      - ./config.json:/go/src/app/config.json
+      - ./config.json:/config.json:ro
