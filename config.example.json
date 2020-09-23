@@ -1,8 +1,19 @@
 {
-    "Nextcloud": {
+    "Cloud": {
         "friendly_url": "https://cloud.example.org",
         "http": {
-           "success_codes": "200" 
+           "success_codes": "200, 201, 202",
+           "test_url": "https://cloud.example.org/api/status"
+        }
+    },
+    "Private": {
+        "friendly_url": "https://private.example.org",
+        "http": {
+           "success_codes": "200",
+           "credentials": {
+               "username": "nicedude69",
+               "password": "sup3r%s3cur3"
+           } 
         }
     },
     "Minecraft Server": {

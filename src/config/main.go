@@ -8,20 +8,21 @@ import (
 // Endpoints holds the Endpoints that will be tested
 var Endpoints EndpointList
 
-// EndpointList is a map of Endpoint definitions
+// EndpointList is a map of Endpoint definitions.
+// The string key is the name of the service
 type EndpointList map[string]EndpointConfig
 
 // EndpointConfig holds the friendly URL (the one listed in the API response)
-// and further protocol specific configuration (like credentials)
+// and additional protocol specific configuration (like credentials)
 type EndpointConfig struct {
 	FriedlyURL      string           `json:"friendly_url"`
-	HTTPConfig      *HTTPConfig      `json:"http,omitempty"`
-	TSConfig        *TSConfig        `json:"teamspeak,omitempty"`
-	MinecraftConfig *MinecraftConfig `json:"minecraft,omitempty"`
+	HTTPConfig      *httpConfig      `json:"http,omitempty"`
+	TSConfig        *tsConfig        `json:"teamspeak,omitempty"`
+	MinecraftConfig *minecraftConfig `json:"minecraft,omitempty"`
 }
 
 // Protocol returns the protocol used in the EndpointConfig
-func (ec EndpointConfig) Protocol() string {
+func (ec *EndpointConfig) Protocol() string {
 	if ec.HTTPConfig != nil {
 		return "http"
 	}
@@ -34,21 +35,24 @@ func (ec EndpointConfig) Protocol() string {
 	return ""
 }
 
-type HTTPConfig struct {
+type httpConfig struct {
 	SuccessCodes string `json:"success_codes"`
-	// if the test URL is empty, the friendly URL will be used
+	// If the test URL is empty, the friendly URL will be used
 	TestURL     string `json:"test_url,omitempty"`
+	// If the Credentials are set, basicauth will be used to
+	// authenticate against the webserver. This is nil by default
+	// as it is a struct pointer.
 	Credentials *struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	} `json:"credentials,omitempty"`
 }
 
-type TSConfig struct {
+type tsConfig struct {
 	QueryURL string `json:"query_url"`
 }
 
-type MinecraftConfig struct {
+type minecraftConfig struct {
 	URL string `json:"url"`
 }
 
