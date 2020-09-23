@@ -14,19 +14,9 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 
 	// inline function to access endpoint and set service status
 	mark := func(status string) {
-		switch status {
-		case "up":
-			Status[name] = map[string]string{
-				"url":    endpoint.FriedlyURL,
-				"status": "up",
-			}
-		case "down":
-			Status[name] = map[string]string{
-				"url":    endpoint.FriedlyURL,
-				"status": "down",
-			}
-		default:
-			panic("Status in mark function no correctly set")	
+		Status[name] = map[string]string{
+			"url":    endpoint.FriedlyURL,
+			"status": status,
 		}
 	}
 
@@ -69,6 +59,9 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 		}
 		if resp.StatusCode == statusCode {
 			mark("up")
+			return nil
+		} else if (resp.StatusCode == 401) {
+			mark("unauthorized")
 			return nil
 		}
 	}
