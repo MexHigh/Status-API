@@ -5,62 +5,63 @@ import (
 	"io/ioutil"
 )
 
-var (
-	// Endpoints holds the Endpoints that will be tested
-	Endpoints EndpointList
-)
+// Endpoints holds the Endpoints that will be tested
+var Endpoints EndpointList
 
 // EndpointList is a map of Endpoint definitions
 type EndpointList map[string]EndpointConfig
 
-// EndpointConfig holds the configuration for a specific endpoint
+// EndpointConfig holds the friendly URL (the one listed in the API response)
+// and further protocol specific configuration (like credentials)
 type EndpointConfig struct {
-	FriedlyURL string `json:"friendly_url"`
-	TSConfig tsConfig `json:"teamspeak,omitempty"`
-	HTTPConfig httpConfig `json:"http,omitempty"`
-	MinecraftConfig minecraftConfig `json:"minecraft,omitempty"`
+	FriedlyURL      string           `json:"friendly_url"`
+	HTTPConfig      *HTTPConfig      `json:"http,omitempty"`
+	TSConfig        *TSConfig        `json:"teamspeak,omitempty"`
+	MinecraftConfig *MinecraftConfig `json:"minecraft,omitempty"`
 }
 
 // Protocol returns the protocol used in the EndpointConfig
-func (ec *EndpointConfig) Protocol() string {
-	if ec.TSConfig != (tsConfig{}) {
-		return "teamspeak"
-	}
-	if ec.HTTPConfig != (httpConfig{}) {
+func (ec EndpointConfig) Protocol() string {
+	if ec.HTTPConfig != nil {
 		return "http"
 	}
-	if ec.MinecraftConfig != (minecraftConfig{}) {
+	if ec.TSConfig != nil {
+		return "teamspeak"
+	}
+	if ec.MinecraftConfig != nil {
 		return "minecraft"
 	}
 	return ""
 }
 
-type tsConfig struct {
-	QueryURL string `json:"query_url"`
-}
-
-type httpConfig struct {
+type HTTPConfig struct {
 	SuccessCodes string `json:"success_codes"`
-	TestURL string `json:"test_url,omitempty"`
-	Credentials struct {
+	// if the test URL is empty, the friendly URL will be used
+	TestURL     string `json:"test_url,omitempty"`
+	Credentials *struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	} `json:"credentials,omitempty"`
 }
 
-type minecraftConfig struct {
+type TSConfig struct {
+	QueryURL string `json:"query_url"`
+}
+
+type MinecraftConfig struct {
 	URL string `json:"url"`
 }
 
 // LoadEndpointsFromFile returns a Config type initialized from the json file
-func LoadEndpointsFromFile(path string) (EndpointList, error) {
+func LoadEndpointsFromFile(path string) error {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var el EndpointList
 	if err = json.Unmarshal(file, &el); err != nil {
-		return nil, err
+		return err
 	}
-	return el, nil
+	Endpoints = el
+	return nil
 }

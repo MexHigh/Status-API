@@ -15,9 +15,7 @@ func main() {
 	flag.Parse()
 
 	log.Println("Loading endpoints from", *configPath)
-	var err error
-	config.Endpoints, err = config.LoadEndpointsFromFile(*configPath)
-	if err != nil {
+	if err := config.LoadEndpointsFromFile(*configPath); err != nil {
 		panic(err)
 	}
 

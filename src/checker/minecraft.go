@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"status-api/config"
-	"status-api/minepong"
+	"status-api/checker/minepong"
 )
 
 func checkMinecraft(name string, endpoint config.EndpointConfig) error {
@@ -17,12 +17,12 @@ func checkMinecraft(name string, endpoint config.EndpointConfig) error {
 		time.Duration(5*time.Second),
 	)
 	if err != nil {
-		if strings.Contains(err.Error(), "i/o timeout") {
+		if e := err.Error(); strings.Contains(e, "i/o timeout") || strings.Contains(e, "connection refused") {
 			Status[name] = map[string]string{
 				"url":    endpoint.FriedlyURL,
 				"status": "down",
 			}
-		} else { // for example "no such host"
+		} else {
 			return err
 		}
 		return nil

@@ -10,29 +10,27 @@ import (
 	"status-api/config"
 )
 
-var (
-	// Status holds the status information about every service registered
-	Status EndpointsStatusList = make(EndpointsStatusList)
-)
+// Status holds the status information about every service registered
+var Status EndpointsStatusList = make(EndpointsStatusList)
 
 // EndpointStatus defines the status of one endpoint status
 type EndpointStatus map[string]string
 
-// EndpointsStatusList is a map containing all services and their statuses
-type EndpointsStatusList map[string]EndpointStatus
-
-// JSON returns a json-formatted []byte
-func (esl EndpointsStatusList) JSON() ([]byte, error) {
-	json, err := json.MarshalIndent(esl, "", "    ")
+// JSON returns a json-formatted []byte of an EndpointStatus
+func (es EndpointStatus) JSON() ([]byte, error) {
+	json, err := json.MarshalIndent(es, "", "    ")
 	if err != nil {
 		return nil, err
 	}
 	return json, nil
 }
 
-// JSON returns a json-formatted []byte
-func (es EndpointStatus) JSON() ([]byte, error) {
-	json, err := json.MarshalIndent(es, "", "    ")
+// EndpointsStatusList is a map containing all services and their statuses
+type EndpointsStatusList map[string]EndpointStatus
+
+// JSON returns a json-formatted []byte of an EndpointStatusList
+func (esl EndpointsStatusList) JSON() ([]byte, error) {
+	json, err := json.MarshalIndent(esl, "", "    ")
 	if err != nil {
 		return nil, err
 	}
@@ -54,16 +52,16 @@ func CheckService(name string, endpoint config.EndpointConfig) error {
 		if err := checkHTTP(name, endpoint); err != nil {
 			return err
 		}
-	case "minecraft":
-		if err := checkMinecraft(name, endpoint); err != nil {
-			return err
-		}
 	case "teamspeak":
 		if err := checkTeamspeak(name, endpoint); err != nil {
 			return err
 		}
+	case "minecraft":
+		if err := checkMinecraft(name, endpoint); err != nil {
+			return err
+		}
 	default:
-		return errors.New("Protocol " + p + " not supported")
+		return errors.New("Protocol in config file not supported")
 	}
 	return nil
 }
