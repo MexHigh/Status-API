@@ -40,10 +40,14 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 		req.SetBasicAuth(creds.Username, creds.Password)
 	}
 	resp, err := client.Do(req)
-	if err, ok := err.(*url.Error); ok && err.Timeout() { // if error is a timeout
+	if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is a timeout
 		mark("down")
 		return nil
-	} else if err != nil { // other error
+	} else if err != nil { // other errors
+		if strings.Contains(err.Error(), "redirects") {	// too many redirects error
+			mark("down (too many redirects)")
+			return nil
+		} 
 		return err
 	}
 
@@ -60,8 +64,8 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 		if resp.StatusCode == statusCode {
 			mark("up")
 			return nil
-		} else if (resp.StatusCode == 401) {
-			mark("unauthorized")
+		} else if (resp.StatusCode == 401) { // only matches if 401 was not set as "success_codes"
+			mark("down (unauthorized)")
 			return nil
 		}
 	}

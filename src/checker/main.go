@@ -78,7 +78,7 @@ func CheckAllServices() error {
 }
 
 // Updater keeps track of the records in the config.json file.
-// This method is intended to be ran as goroutine (blocks )
+// This method is intended to be ran as goroutine (blocks until the next interval)
 func Updater(interval int) {
 	log.Println("Starting updater routine with an interval of " + strconv.Itoa(interval) + " seconds")
 	for {
