@@ -7,7 +7,10 @@ import (
 )
 
 func checkTeamspeak(name string, endpoint config.EndpointConfig) error {
-	tsclient, err := ts3.NewClient(endpoint.TSConfig.QueryURL)
+
+	protocolConfig := endpoint.Protocol.Config.(*config.TSConfig)
+
+	tsclient, err := ts3.NewClient(protocolConfig.QueryURL)
 	if err != nil {
 		// on failure
 		Status[name] = map[string]string{

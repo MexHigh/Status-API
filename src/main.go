@@ -9,9 +9,10 @@ import (
 	"status-api/config"
 )
 
+var configPath = flag.String("config", "./config.json", "Path to the config.json file")
+
 func main() {
 
-	configPath := flag.String("config", "./config.json", "Path to the config.json file")
 	flag.Parse()
 
 	log.Println("Loading endpoints from", *configPath)

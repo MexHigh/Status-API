@@ -4,8 +4,6 @@ import (
 	"errors"
 	"time"
 	"net/url"
-	"strings"
-	"strconv"
 	"net/http"
 	
 	"status-api/config"
@@ -14,6 +12,8 @@ import (
 var errTooManyRedirects = errors.New("Too many redirects")
 
 func checkHTTP(name string, endpoint config.EndpointConfig) error {
+
+	protocolConfig := endpoint.Protocol.Config.(*config.HTTPConfig)
 
 	// inline function to access endpoint and set service status
 	mark := func(status string) {
@@ -25,7 +25,7 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 
 	// use friendly URL if test URL in HTTP Config is not set
 	var testURL string
-	if t := endpoint.HTTPConfig.TestURL; t == "" {
+	if t := protocolConfig.TestURL; t == "" {
 		testURL = endpoint.FriedlyURL
 	} else {
 		testURL = t
@@ -45,7 +45,7 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 	if err != nil {
 		return err
 	}
-	if creds := endpoint.HTTPConfig.Credentials; creds != nil {
+	if creds := protocolConfig.Credentials; creds != nil {
 		req.SetBasicAuth(creds.Username, creds.Password)
 	}
 	resp, err := client.Do(req)
@@ -60,15 +60,11 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 	}
 
 	// check for matching status code
-	successCodeStrings := strings.Split(
+	/*successCodeStrings := strings.Split(
 		strings.ReplaceAll(endpoint.HTTPConfig.SuccessCodes, " ", ""),
 		",",
-	)
-	for _, statusCodeString := range successCodeStrings {
-		statusCode, err := strconv.Atoi(statusCodeString)
-		if err != nil {
-			return err
-		}
+	)*/
+	for _, statusCode := range protocolConfig.SuccessCodes {
 		if resp.StatusCode == statusCode {
 			mark("up")
 			return nil

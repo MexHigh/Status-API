@@ -11,9 +11,12 @@ import (
 )
 
 func checkMinecraft(name string, endpoint config.EndpointConfig) error {
+
+	protocolConfig := endpoint.Protocol.Config.(*config.MinecraftConfig)
+
 	conn, err := net.DialTimeout(
 		"tcp", 
-		endpoint.MinecraftConfig.URL,
+		protocolConfig.URL,
 		time.Duration(5*time.Second),
 	)
 	if err != nil {
@@ -27,7 +30,7 @@ func checkMinecraft(name string, endpoint config.EndpointConfig) error {
 		}
 		return nil
 	}
-	pong, err := minepong.Ping(conn, endpoint.MinecraftConfig.URL)
+	pong, err := minepong.Ping(conn, protocolConfig.URL)
 	if err != nil {
 		return err
 	}

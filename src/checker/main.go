@@ -13,18 +13,6 @@ import (
 // Status holds the status information about every service registered
 var Status EndpointsStatusList = make(EndpointsStatusList)
 
-// EndpointStatus defines the status of one endpoint status
-type EndpointStatus map[string]string
-
-// JSON returns a json-formatted []byte of an EndpointStatus
-func (es EndpointStatus) JSON() ([]byte, error) {
-	json, err := json.MarshalIndent(es, "", "    ")
-	if err != nil {
-		return nil, err
-	}
-	return json, nil
-}
-
 // EndpointsStatusList is a map containing all services and their statuses
 type EndpointsStatusList map[string]EndpointStatus
 
@@ -37,7 +25,19 @@ func (esl EndpointsStatusList) JSON() ([]byte, error) {
 	return json, nil
 }
 
-// GetEndpoint returns a OneEndpointStatus of a AllEndpointsStatus
+// EndpointStatus defines the status of one endpoint status
+type EndpointStatus map[string]string
+
+// JSON returns a json-formatted []byte of an EndpointStatus
+func (es EndpointStatus) JSON() ([]byte, error) {
+	json, err := json.MarshalIndent(es, "", "    ")
+	if err != nil {
+		return nil, err
+	}
+	return json, nil
+}
+
+// GetEndpoint returns an EndpointStatus from the EndpointStatusList
 func (esl EndpointsStatusList) GetEndpoint(name string) (EndpointStatus, error) {
 	if os, ok := esl[name]; ok {
 		return os, nil
@@ -47,7 +47,7 @@ func (esl EndpointsStatusList) GetEndpoint(name string) (EndpointStatus, error) 
 
 // CheckService checks, if an endpoint returns one of the specified status codes
 func CheckService(name string, endpoint config.EndpointConfig) error {
-	switch p := endpoint.Protocol(); p {
+	switch p := endpoint.Protocol.Type; p {
 	case "http":
 		if err := checkHTTP(name, endpoint); err != nil {
 			return err
@@ -61,7 +61,7 @@ func CheckService(name string, endpoint config.EndpointConfig) error {
 			return err
 		}
 	default:
-		return errors.New("Protocol in config file not supported")
+		panic("Error while switching through endpoint protocol type on startup")
 	}
 	return nil
 }
@@ -80,7 +80,7 @@ func CheckAllServices() error {
 // Updater keeps track of the records in the config.json file.
 // This method is intended to be ran as goroutine (blocks until the next interval)
 func Updater(interval int) {
-	log.Println("Starting updater routine with an interval of " + strconv.Itoa(interval) + " seconds")
+	log.Println("Starting updater routine with an update interval of " + strconv.Itoa(interval) + " seconds")
 	for {
 		if err := CheckAllServices(); err != nil {
 			panic(err)
