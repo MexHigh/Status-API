@@ -1,6 +1,7 @@
 package checker
 
 import (
+	"errors"
 	"time"
 	"net/url"
 	"strings"
@@ -9,6 +10,8 @@ import (
 	
 	"status-api/config"
 )
+
+var errTooManyRedirects = errors.New("Too many redirects")
 
 func checkHTTP(name string, endpoint config.EndpointConfig) error {
 
@@ -31,6 +34,12 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 	// do the request
 	client := &http.Client{
 		Timeout: 5 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 10 {
+				return errTooManyRedirects
+			}
+			return nil
+		},
 	}
 	req, err := http.NewRequest("GET", testURL, nil)
 	if err != nil {
@@ -43,11 +52,10 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 	if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is a timeout
 		mark("down")
 		return nil
-	} else if err != nil { // other errors
-		if strings.Contains(err.Error(), "redirects") {	// too many redirects error
-			mark("down (too many redirects)")
-			return nil
-		} 
+	} else if errors.Is(err, errTooManyRedirects) { // if error is caused by too many redirects
+		mark("down (too many redirects)")
+		return nil
+	} else if err != nil { // unknown error
 		return err
 	}
 
