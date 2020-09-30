@@ -1,7 +1,7 @@
 package minepong
 
-// This file was written by Andrew Tian
-// https://github.com/andrewtian/minepong
+// This file was written by Andrew Tian and Syfaro.
+// Taken from: https://github.com/Syfaro/minepong
 
 import (
 	"bufio"
@@ -12,13 +12,17 @@ import (
 	"io"
 	"net"
 	"strconv"
+	"time"
 )
 
 const (
-	protocolVersion = 0x47
+	protocolVersion = 573
 )
 
-// Pong is the response from a minecraft Ping request
+var (
+	connectionTimeout = 2 * time.Second
+)
+
 type Pong struct {
 	Version struct {
 		Name     string
@@ -29,25 +33,55 @@ type Pong struct {
 		Online int `json:"online"`
 		Sample []map[string]string
 	} `json:"players"`
-	Description interface{} `json:"description"`
-	FavIcon     string      `json:"favicon"`
+	Description  interface{} `json:"description"`
+	FavIcon      string      `json:"favicon"`
+	ResolvedHost string      `json:"resolved_host"`
 }
 
-// Ping retrieves some general informations about a running
-// minecraft server
-func Ping(conn net.Conn, host string) (*Pong, error) {
-	if err := sendHandshake(conn, host); err != nil {
-		return nil, err
+func resolveSRV(addr string) (host string, err error) {
+	h, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		h = addr
 	}
 
-	if err := sendStatusRequest(conn); err != nil {
-		return nil, err
+	_, addrs, err := net.LookupSRV("minecraft", "tcp", h)
+	if err != nil || len(addrs) == 0 {
+		return host, errors.New("unable to find SRV record")
 	}
 
-	pong, err := readPong(conn)
+	return net.JoinHostPort(addrs[0].Target, strconv.Itoa(int(addrs[0].Port))), nil
+}
+
+func Ping(host string) (*Pong, error) {
+	srvHost, err := resolveSRV(host)
+
+	if err == nil {
+		host = srvHost
+	}
+
+	conn, err := net.DialTimeout("tcp", host, connectionTimeout)
 	if err != nil {
 		return nil, err
 	}
+	defer conn.Close()
+
+	conn.SetReadDeadline(time.Now().Add(connectionTimeout))
+	conn.SetWriteDeadline(time.Now().Add(connectionTimeout))
+
+	if err := SendHandshake(conn, host); err != nil {
+		return nil, err
+	}
+
+	if err := SendStatusRequest(conn); err != nil {
+		return nil, err
+	}
+
+	pong, err := ReadPong(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	pong.ResolvedHost = host
 
 	return pong, nil
 }
@@ -63,19 +97,19 @@ func makePacket(pl *bytes.Buffer) *bytes.Buffer {
 	return &buf
 }
 
-func sendHandshake(conn net.Conn, host string) error {
+func SendHandshake(conn net.Conn, host string) error {
 	pl := &bytes.Buffer{}
 
 	// packet id
 	pl.WriteByte(0x00)
 
 	// protocol version
-	pl.WriteByte(protocolVersion)
+	pl.Write(encodeVarint(uint64(protocolVersion)))
 
 	// server address
 	host, port, err := net.SplitHostPort(host)
 	if err != nil {
-		panic(err)
+		return errors.New("cannot split host and port")
 	}
 
 	pl.Write(encodeVarint(uint64(len(host))))
@@ -84,7 +118,7 @@ func sendHandshake(conn net.Conn, host string) error {
 	// server port
 	iPort, err := strconv.Atoi(port)
 	if err != nil {
-		panic(err)
+		return errors.New("cannot convert port to int")
 	}
 	binary.Write(pl, binary.BigEndian, int16(iPort))
 
@@ -98,7 +132,7 @@ func sendHandshake(conn net.Conn, host string) error {
 	return nil
 }
 
-func sendStatusRequest(conn net.Conn) error {
+func SendStatusRequest(conn net.Conn) error {
 	pl := &bytes.Buffer{}
 
 	// send request zero
@@ -124,7 +158,7 @@ func encodeVarint(x uint64) []byte {
 	return buf[0:n]
 }
 
-func readPong(rd io.Reader) (*Pong, error) {
+func ReadPong(rd io.Reader) (*Pong, error) {
 	r := bufio.NewReader(rd)
 	nl, err := binary.ReadUvarint(r)
 	if err != nil {

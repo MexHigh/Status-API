@@ -15,7 +15,7 @@ func checkHTTP(name string, endpoint config.EndpointConfig) error {
 
 	protocolConfig := endpoint.Protocol.Config.(*config.HTTPConfig)
 
-	// inline function to access endpoint and set service status
+	// inline function to access endpoint var and set service status
 	mark := func(status string) {
 		Status[name] = map[string]string{
 			"url":    endpoint.FriedlyURL,

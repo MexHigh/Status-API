@@ -1,10 +1,8 @@
 package checker
 
 import (
-	"net"
-	"strconv"
 	"strings"
-	"time"
+	"strconv"
 
 	"status-api/config"
 	"status-api/checker/minepong"
@@ -14,26 +12,18 @@ func checkMinecraft(name string, endpoint config.EndpointConfig) error {
 
 	protocolConfig := endpoint.Protocol.Config.(*config.MinecraftConfig)
 
-	conn, err := net.DialTimeout(
-		"tcp", 
-		protocolConfig.URL,
-		time.Duration(5*time.Second),
-	)
+	pong, err := minepong.Ping(protocolConfig.URL)
 	if err != nil {
 		if e := err.Error(); strings.Contains(e, "i/o timeout") || strings.Contains(e, "connection refused") {
 			Status[name] = map[string]string{
 				"url":    endpoint.FriedlyURL,
 				"status": "down",
 			}
-		} else {
-			return err
+			return nil
 		}
-		return nil
+		return err // unknown error
 	}
-	pong, err := minepong.Ping(conn, protocolConfig.URL)
-	if err != nil {
-		return err
-	}
+
 	Status[name] = map[string]string{
 		"url":     endpoint.FriedlyURL,
 		"status":  "up",
