@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+var errTooManyRedirects = errors.New("Too many redirects")
+
 // HTTPConfig is the config struct for testing if a website or API is reachable.
 // It supports basicauth, too (via the embedded Credentials *struct).
 type HTTPConfig struct {
@@ -29,15 +31,13 @@ func (h *HTTPConfig) setDefaults() {
 	}
 }
 
-var errTooManyRedirects = errors.New("Too many redirects")
-
-func checkHTTP(name string, endpoint *Endpoint) error {
+func (h *HTTPConfig) Check(name string, endpoint Endpoint) error {
 
 	protocolConfig := endpoint.Protocol.Config.(*HTTPConfig)
 
 	// inline function to access endpoint var and set service status
 	mark := func(status string) {
-		endpoint.Status = map[string]string{
+		endpoint.Status[name] = map[string]string{
 			"url":    endpoint.FriedlyURL,
 			"status": status,
 		}

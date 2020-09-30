@@ -4,32 +4,24 @@ import (
 	ts3 "github.com/multiplay/go-ts3"
 )
 
-// TSConfig is the config struct for testing if a Teamspeak 3/5 server is online
-type TSConfig struct {
-	QueryURL string `json:"query_url"`
-}
-
-func (t *TSConfig) setDefaults() {
-	return
-}
-
-func checkTeamspeak(name string, endpoint *Endpoint) error {
+func checkTeamspeak(name string, endpoint Endpoint) error {
 
 	protocolConfig := endpoint.Protocol.Config.(*TSConfig)
 
 	tsclient, err := ts3.NewClient(protocolConfig.QueryURL)
 	if err != nil {
 		// on failure
-		endpoint.Status = map[string]string{
+		endpoint.Status[name] = map[string]string{
 			"url":    endpoint.FriedlyURL,
 			"status": "down",
 		}
+		endpoint.Status[name] = "was geht"
 		return nil
 	}
 	defer tsclient.Close()
 	
 	// on success
-	endpoint.Status = map[string]string{
+	Status[name] = map[string]string{
 		"url":    endpoint.FriedlyURL,
 		"status": "up",
 	}

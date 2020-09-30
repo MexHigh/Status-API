@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -20,7 +21,12 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func allServicesHandler(w http.ResponseWriter, r *http.Request) {
-	jsonStatus, err := checker.Status.JSON()
+	allStatus := make(map[string]map[string]string)
+	for name, endpoint := range checker.Endpoints {
+		status := endpoint.Status
+		allStatus[name] = status
+	}
+	jsonStatus, err := json.MarshalIndent(allStatus, "", "    ")
 	if err != nil {
 		panic(err)
 	}
@@ -34,12 +40,12 @@ func oneServiceHandler(w http.ResponseWriter, r *http.Request) {
 		respondError(&w, errors.New("Please provide ?name= parameter"))
 		return
 	}
-	status, err := checker.Status.GetEndpoint(keys[0])
+	endpoint, err := checker.Endpoints.GetEndpoint(keys[0])
 	if err != nil {
 		respondError(&w, err)
 		return
 	}
-	jsonStatus, err := status.JSON()
+	jsonStatus, err := endpoint.Status.JSON()
 	if err != nil {
 		respondError(&w, err)
 		return

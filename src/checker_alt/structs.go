@@ -1,4 +1,4 @@
-package config
+package checker
 
 import (
 	"encoding/json"
@@ -6,32 +6,35 @@ import (
 	"io/ioutil"
 )
 
-// Endpoints holds the Endpoints that will be tested
-var Endpoints EndpointList
+
+var (
+	// Endpoints holds the Endpoints that will be tested
+	Endpoints EndpointList
+)
 
 // EndpointList is a map of Endpoint definitions.
 // The string key is the name of the service
-type EndpointList map[string]EndpointConfig
+type EndpointList map[string]Endpoint
 
 // UnmarshalJSON fulfills the json.Unmarshaler interface for EndpointList.
 // It therefore will be unmarshaled with the help of this function.
 func (el *EndpointList) UnmarshalJSON(b []byte) error {
 
-	*el = make(map[string]EndpointConfig)
+	*el = make(map[string]Endpoint)
 
 	// tempEndpointList cannot be EndpointList. This would cause
 	// an infinit recursion because the next call to json.Unmarshal
 	// would call this function again.
-	var tempEndpointList map[string]EndpointConfig
+	var tempEndpointList map[string]Endpoint
 	if err := json.Unmarshal(b, &tempEndpointList); err != nil {
 		return err
 	}
 
-	for name, config := range tempEndpointList {
+	for name, endpoint := range tempEndpointList {
 
 		var protoConfig defaultableConfig
 
-		switch config.Protocol.Type {
+		switch endpoint.Protocol.Type {
 		case "http", "https":
 			protoConfig = &HTTPConfig{}
 		case "teamspeak", "ts":
@@ -39,14 +42,14 @@ func (el *EndpointList) UnmarshalJSON(b []byte) error {
 		case "minecraft", "mc":
 			protoConfig = &MinecraftConfig{}
 		default:
-			return fmt.Errorf(`Service "%s": Protocol "%s" not supported`, name, config.Protocol.Type)
+			return fmt.Errorf(`Service "%s": Protocol "%s" not supported`, name, endpoint.Protocol.Type)
 		}
 
-		if err := json.Unmarshal(config.Protocol.ConfigRaw, &protoConfig); err != nil {
+		if err := json.Unmarshal(endpoint.Protocol.ConfigRaw, &protoConfig); err != nil {
 			return err
 		}
-		config.Protocol.Config = protoConfig
-		(*el)[name] = config
+		endpoint.Protocol.Config = protoConfig
+		(*el)[name] = endpoint
 
 	}
 	return nil
@@ -61,12 +64,16 @@ func (el *EndpointList) setDefaults() {
 	}
 }
 
-// EndpointConfig holds the friendly URL (the one listed in the API response)
+// Endpoint holds the friendly URL (the one listed in the API response)
 // and additional protocol specific configuration (like credentials)
-type EndpointConfig struct {
+type Endpoint struct {
 	FriedlyURL string   `json:"friendly_url"`
+	Status map[string]string
 	Protocol   Protocol `json:"protocol"`
 }
+
+// EndpointStatus -
+type EndpointStatus map[string]string
 
 // Protocol holds information about an Endpoints protocol with which it will
 // be tested. The ConfigRaw field is used to unmarshal the config.json and should
@@ -81,28 +88,8 @@ func (p Protocol) setDefaults() {
 	p.Config.setDefaults()
 }
 
-type defaultableConfig interface{ setDefaults() }
-
-// HTTPConfig is the config struct for testing if a website or API is reachable.
-// It supports basicauth, too (via the embedded Credentials *struct).
-type HTTPConfig struct {
-	// If the StatusCodes were not set it defaults to 200
-	SuccessCodes []int `json:"success_codes,omitempty"`
-	// If the test URL is empty, the friendly URL will be used
-	TestURL string `json:"test_url,omitempty"`
-	// If the Credentials are set, basicauth will be used to
-	// authenticate against the webserver. This is nil by default
-	// as it is a struct pointer.
-	Credentials *struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	} `json:"credentials,omitempty"`
-}
-
-func (h *HTTPConfig) setDefaults() {
-	if len(h.SuccessCodes) == 0 {
-		h.SuccessCodes = []int{200}
-	}
+type defaultableConfig interface{
+	setDefaults() 
 }
 
 // TSConfig is the config struct for testing if a Teamspeak 3/5 server is online

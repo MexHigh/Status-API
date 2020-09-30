@@ -6,12 +6,7 @@ import (
 	"log"
 	"strconv"
 	"time"
-
-	"status-api/config"
 )
-
-// Status holds the status information about every service registered
-var Status EndpointsStatusList = make(EndpointsStatusList)
 
 // EndpointsStatusList is a map containing all services and their statuses
 type EndpointsStatusList map[string]EndpointStatus
@@ -24,9 +19,6 @@ func (esl EndpointsStatusList) JSON() ([]byte, error) {
 	}
 	return json, nil
 }
-
-// EndpointStatus defines the status of one endpoint status
-type EndpointStatus map[string]string
 
 // JSON returns a json-formatted []byte of an EndpointStatus
 func (es EndpointStatus) JSON() ([]byte, error) {
