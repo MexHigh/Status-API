@@ -1,8 +1,8 @@
 package checker
 
 import (
-	"errors"
 	"encoding/json"
+	"errors"
 )
 
 // Endpoints holds the Endpoints that will be tested
@@ -55,24 +55,12 @@ func (e *Endpoint) CheckIfUp() error {
 	return nil
 }
 
-// EndpointStatus -
-type EndpointStatus map[string]string
-
-// JSON -
-func (es *EndpointStatus) JSON() ([]byte, error) {
-	json, err := json.MarshalIndent(*es, "", "    ")
-		if err != nil {
-			return nil, err
-		}
-	return json, nil
-}
-
 // Protocol holds information about an Endpoints protocol with which it will
 // be tested. The ConfigRaw field is used to unmarshal the config.json and should
 // not be used. Use the Config field (must be type asserted) instead.
 type Protocol struct {
-	Type      string          `json:"type"`
-	ConfigRaw json.RawMessage `json:"config"`
+	Type      string            `json:"type"`
+	ConfigRaw json.RawMessage   `json:"config"`
 	Config    defaultableConfig `json:"-"`
 }
 
@@ -80,6 +68,18 @@ func (p Protocol) setDefaults() {
 	p.Config.setDefaults()
 }
 
-type defaultableConfig interface{
+// EndpointStatus is embedded in Endpoint to represent the status of it.
+type EndpointStatus map[string]string
+
+// JSON return the json endcoded version of EndpointStatus
+func (es *EndpointStatus) JSON() ([]byte, error) {
+	json, err := json.MarshalIndent(*es, "", "    ")
+	if err != nil {
+		return nil, err
+	}
+	return json, nil
+}
+
+type defaultableConfig interface {
 	setDefaults()
 }
