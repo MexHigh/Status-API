@@ -1,17 +1,29 @@
 package database
 
-type DBConnection struct {
+// A Database contains information about
+// a database connection
+type Database struct {
 	Connected bool
 }
 
-func (db *DBConnection) Connect() {
+// NewSQLite3 creates a new connection struct
+// to an SQLite3 Database. Call db.Connect()
+// to astablish the connection
+func NewSQLite3(path string) *Database {
+	return &Database{}
+}
+
+// Connect establishes the Database connection
+func (db *Database) Connect() {
 
 }
 
-func (db *DBConnection) Disconnect() {
+// Disconnect closes the connection
+func (db *Database) Disconnect() {
 
 }
 
-func (db *DBConnection) Exec(query string) interface{} {
-
+// Exec executes a query on the database
+func (db *Database) Exec(query string) interface{} {
+	return nil
 }

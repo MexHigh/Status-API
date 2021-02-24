@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
+	"status-api/schedules"
 	"status-api/structs"
 )
 
@@ -20,8 +20,13 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(
-		c.ForService("Nextcloud").Protocol,
-	)
+	log.Println("Starting trigger routines")
+	go schedules.CheckTriggerRoutine(c, 10)
+	go schedules.ArchiveTriggerRoutine(c)
+
+	log.Println("Starting API server")
+	// TODO add API server
+	for {
+	}
 
 }
