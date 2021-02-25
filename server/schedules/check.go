@@ -2,28 +2,31 @@ package schedules
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"status-api/schedules/checkers"
 	"status-api/structs"
 )
 
-func runCheck(config *structs.Config) {
+func runChecks(config *structs.Config) {
 
+	// ResultWithName is only used here as the channel
+	// type so that only one channel is necessary
 	type ResultWithName struct {
 		Name   string
 		Result structs.Result
 	}
 
-	resultsChan := make(chan ResultWithName, len(config.Services)) // buffered channel for test results
-	var wg sync.WaitGroup
+	// buffered channel for test results
+	resultsChan := make(chan ResultWithName, len(config.Services))
 
 	for name, config := range config.Services {
-		wg.Add(1)
-		go func(name string, config structs.ServiceConfig) { // check router function
+		// Invoke goroutines for checking every service
+		go func(name string, config structs.ServiceConfig) {
 
-			defer wg.Done()
+			if config.ProtocolConfig == nil {
+				config.ProtocolConfig = make(map[string]interface{})
+			}
 
 			var r structs.Result
 			var err error
@@ -39,6 +42,11 @@ func runCheck(config *structs.Config) {
 				panic(err) // TODO should be handled a different way
 			}
 
+			// Idea: Add an error field to ResultWithName and check when
+			// reading from the channel. If there is one, set an error
+			// key in the Misc field of Result and set the status to "unknown"
+
+			// Write the result to the channel
 			resultsChan <- ResultWithName{
 				Name:   name,
 				Result: r,
@@ -46,15 +54,19 @@ func runCheck(config *structs.Config) {
 
 		}(name, config)
 	}
-	wg.Wait() // await all goroutines (like Promise.all())
-	close(resultsChan)
 
-	results := structs.Results{}
-	results.At = time.Now()
-	results.Services = make(map[string]structs.Result)
-	for result := range resultsChan { // read from channel until empty
-		results.Services[result.Name] = result.Result
+	results := structs.Results{
+		At:       time.Now(),
+		Services: make(map[string]structs.Result),
 	}
+	// collect results from the channel
+	for range config.Services {
+		res := <-resultsChan
+		results.Services[res.Name] = res.Result
+	}
+	// every service just returns one result,
+	// so closing the channel here is fine
+	close(resultsChan)
 
 	// TODO store in Database
 
