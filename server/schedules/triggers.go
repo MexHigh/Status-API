@@ -18,7 +18,7 @@ func ArchiveTriggerRoutine(config *structs.Config) {
 // to trigger regular checks
 func CheckTriggerRoutine(config *structs.Config, interval int) {
 
-	log.Println("Running initial checks...")
+	log.Println("Running initial checks")
 	runChecks(config)
 	log.Println("Checks done")
 
@@ -26,7 +26,7 @@ func CheckTriggerRoutine(config *structs.Config, interval int) {
 		time.Sleep(
 			time.Duration(interval) * time.Second,
 		)
-		log.Println("Check trigger fired. Running checks...")
+		log.Println("Check trigger fired. Running checks")
 		runChecks(config)
 		log.Println("Checks done")
 	}

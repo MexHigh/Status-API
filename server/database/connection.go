@@ -1,29 +1,34 @@
 package database
 
-// A Database contains information about
-// a database connection
-type Database struct {
-	Connected bool
-}
+import (
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+)
 
-// NewSQLite3 creates a new connection struct
+// Con is an instance of a
+// database connection
+var Con *gorm.DB
+
+// InitializeSQLite3 creates a new connection struct
 // to an SQLite3 Database. Call db.Connect()
 // to astablish the connection
-func NewSQLite3(path string) *Database {
-	return &Database{}
-}
+func InitializeSQLite3(path string, dst ...interface{}) error {
 
-// Connect establishes the Database connection
-func (db *Database) Connect() {
+	// open
+	db, err := gorm.Open(
+		sqlite.Open(path),
+		&gorm.Config{},
+	)
+	if err != nil {
+		return err
+	}
 
-}
+	// auto migration
+	if err := db.AutoMigrate(dst...); err != nil {
+		return err
+	}
 
-// Disconnect closes the connection
-func (db *Database) Disconnect() {
-
-}
-
-// Exec executes a query on the database
-func (db *Database) Exec(query string) interface{} {
+	Con = db
 	return nil
+
 }

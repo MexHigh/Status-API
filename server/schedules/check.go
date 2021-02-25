@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"status-api/database"
 	"status-api/schedules/checkers"
 	"status-api/structs"
 )
@@ -68,6 +69,6 @@ func runChecks(config *structs.Config) {
 	// so closing the channel here is fine
 	close(resultsChan)
 
-	// TODO store in Database
+	database.Con.Create(&results)
 
 }
