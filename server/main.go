@@ -2,17 +2,22 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 
+	"status-api/api"
 	"status-api/database"
 	"status-api/schedules"
 	"status-api/structs"
 )
 
 var configPath = flag.String("config", "./config.json", "Path to the config.json file")
-var dbPath = flag.String("database", "./db.sqlite", "Path to the SQLite3 database")
 
 func main() {
+
+	fmt.Println()
+	fmt.Println("  ~ Status API by leon.wtf ~  ")
+	fmt.Println()
 
 	flag.Parse()
 
@@ -22,9 +27,9 @@ func main() {
 		panic(err)
 	}
 
-	log.Println("Connecting to SQLite3 database at", *dbPath)
+	log.Println("Connecting to SQLite3 database")
 	if err := database.InitializeSQLite3(
-		*dbPath,
+		c.DBPath,
 		&structs.Results{},
 		// TODO add archiveStruct
 	); err != nil {
@@ -32,12 +37,12 @@ func main() {
 	}
 
 	log.Println("Starting trigger routines")
-	//go schedules.CheckTriggerRoutine(c, 10)
+	go schedules.CheckTriggerRoutine(c, c.CheckInterval)
 	go schedules.ArchiveTriggerRoutine(c)
 
 	log.Println("Starting API server")
-	// TODO add API server
-	for {
+	if err := api.Start(c.APIHost); err != nil {
+		panic(err)
 	}
 
 }

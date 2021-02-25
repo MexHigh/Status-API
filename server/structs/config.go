@@ -16,7 +16,10 @@ type ServiceConfig struct {
 // Config mirrors the config.json file which holds
 // a dictionary of services with their ServiceConfigs
 type Config struct {
-	Services map[string]ServiceConfig `json:"services"`
+	APIHost       string                   `json:"api_host,omitempty"`
+	DBPath        string                   `json:"db_path,omitempty"`
+	CheckInterval int                      `json:"check_interval,omitempty"`
+	Services      map[string]ServiceConfig `json:"services"`
 }
 
 // ForService returns the ServiceConfig for a specific
