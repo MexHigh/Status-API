@@ -1,6 +1,17 @@
 package server
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
+
+func respondInstance(w *http.ResponseWriter, inst interface{}, statusCode int) {
+	bytes, err := json.Marshal(inst)
+	if err != nil {
+		panic(err)
+	}
+	respondJSON(w, bytes, statusCode)
+}
 
 func respondJSON(w *http.ResponseWriter, json []byte, statusCode int) {
 	(*w).Header().Set("Content-Type", "application/json; charset=UTF-8")

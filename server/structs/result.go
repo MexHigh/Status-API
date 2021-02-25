@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // Status is a string enumaration of a
@@ -19,6 +17,8 @@ const (
 	Up Status = "up"
 	// Down = "down"
 	Down Status = "down"
+	// Problems = "problems"
+	Problems Status = "problems"
 )
 
 // A Result represents the health and some other
@@ -65,7 +65,7 @@ var _ sql.Scanner = (*ResultMap)(nil)
 // Results wraps multiple Results by name and
 // adds a timestamp at when they were checked
 type Results struct {
-	gorm.Model
-	At       time.Time
-	Services ResultMap
+	Model
+	At       time.Time `json:"at"`
+	Services ResultMap `json:"services"`
 }

@@ -31,6 +31,7 @@ func main() {
 	if err := database.InitializeSQLite3(
 		c.DBPath,
 		&structs.Results{},
+		&structs.ArchiveResults{},
 		// TODO add archiveStruct
 	); err != nil {
 		panic(err)
