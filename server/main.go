@@ -30,8 +30,8 @@ func main() {
 	log.Println("Connecting to SQLite3 database")
 	if err := database.InitializeSQLite3(
 		c.DBPath,
-		&structs.Results{},
-		&structs.ArchiveResults{},
+		&structs.CheckResultsModel{},
+		&structs.ArchiveResultsModel{},
 		// TODO add archiveStruct
 	); err != nil {
 		panic(err)

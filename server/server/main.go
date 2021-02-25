@@ -23,8 +23,8 @@ func Start(host string, serveFrontend bool, frontendPath string) error {
 	// API router
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/ping", pingHandler).Methods("GET")
-	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
 	apiRouter.HandleFunc("/services/latest", latestHandler).Methods("GET")
+	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
 	// frontend router
 	if serveFrontend {
 		if frontendPath == "" {

@@ -15,7 +15,7 @@ type HTTP struct{}
 var errTooManyRedirects = errors.New("Too many redirects")
 
 // Check -
-func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.Result, error) {
+func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, error) {
 
 	// test url
 	var testURL string
@@ -43,30 +43,30 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.Result, error)
 	}
 	req, err := http.NewRequest("GET", testURL, nil)
 	if err != nil {
-		return structs.Result{}, err
+		return structs.CheckResult{}, err
 	}
 	// TODO add credentials
 	resp, err := client.Do(req)
 	if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
-		return structs.Result{
+		return structs.CheckResult{
 			Status: "down",
 			URL:    c.FriendlyURL,
 			Reason: "timeout",
 		}, nil
 	} else if errors.Is(err, errTooManyRedirects) {
-		return structs.Result{
+		return structs.CheckResult{
 			Status: "down",
 			URL:    c.FriendlyURL,
 			Reason: "too many redirects",
 		}, nil
 	} else if err != nil {
-		return structs.Result{}, err // TODO is this ok to return an empty result?
+		return structs.CheckResult{}, err // TODO is this ok to return an empty result?
 	}
 
 	if successCodes != nil {
 		for _, sc := range successCodes {
 			if resp.StatusCode == int(sc.(float64)) {
-				return structs.Result{
+				return structs.CheckResult{
 					Status: "up",
 					URL:    c.FriendlyURL,
 				}, nil
@@ -74,14 +74,14 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.Result, error)
 		}
 	} else {
 		if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
-			return structs.Result{
+			return structs.CheckResult{
 				Status: "up",
 				URL:    c.FriendlyURL,
 			}, nil
 		}
 	}
 
-	return structs.Result{
+	return structs.CheckResult{
 		Status: "down",
 		URL:    c.FriendlyURL,
 		Reason: fmt.Sprintf("status code %d does not match conditions", resp.StatusCode),

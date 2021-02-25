@@ -15,7 +15,7 @@ func runChecks(config *structs.Config) {
 	// type so that only one channel is necessary
 	type ResultWithName struct {
 		Name   string
-		Result structs.Result
+		Result structs.CheckResult
 	}
 
 	// buffered channel for test results
@@ -29,7 +29,7 @@ func runChecks(config *structs.Config) {
 				config.ProtocolConfig = make(map[string]interface{})
 			}
 
-			var r structs.Result
+			var r structs.CheckResult
 			var err error
 
 			switch proto := config.Protocol; proto {
@@ -56,9 +56,9 @@ func runChecks(config *structs.Config) {
 		}(name, config)
 	}
 
-	results := structs.Results{
+	results := structs.CheckResults{
 		At:       time.Now(),
-		Services: make(map[string]structs.Result),
+		Services: make(map[string]structs.CheckResult),
 	}
 	// collect results from the channel
 	for range config.Services {
@@ -69,6 +69,9 @@ func runChecks(config *structs.Config) {
 	// so closing the channel here is fine
 	close(resultsChan)
 
-	database.Con.Create(&results)
+	model := &structs.CheckResultsModel{
+		Data: results,
+	}
+	database.Con.Create(model)
 
 }

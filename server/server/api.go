@@ -11,17 +11,24 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func latestHandler(w http.ResponseWriter, r *http.Request) {
-	st := &structs.Results{}
+	st := &structs.CheckResultsModel{}
 	database.Con.Last(st)
 
-	respondInstance(&w, st, 200)
+	respondInstance(&w, st.Data, 200)
 }
 
 func timelineHandler(w http.ResponseWriter, r *http.Request) {
 
-	type Timeline []structs.ArchiveResults
-	tl := &Timeline{}
-	database.Con.Find(tl)
+	var tl []structs.ArchiveResultsModel
+	database.Con.Find(&tl)
 
-	respondInstance(&w, tl, 200)
+	tlWithoutData := make([]structs.ArchiveResults, 0, len(tl))
+	for _, v := range tl {
+		tlWithoutData = append(tlWithoutData, structs.ArchiveResults{
+			At:       v.Data.At,
+			Services: v.Data.Services,
+		})
+	}
+
+	respondInstance(&w, &tlWithoutData, 200)
 }
