@@ -44,8 +44,8 @@ func runChecks(config *structs.Config) {
 			}
 
 			// Idea: Add an error field to ResultWithName and check when
-			// reading from the channel. If there is one, set an error
-			// key in the Misc field of Result and set the status to "unknown"
+			// reading from the channel. If there is one, put it in the
+			// Reason field of Result and set the status to "unknown"
 
 			// Write the result to the channel
 			resultsChan <- ResultWithName{

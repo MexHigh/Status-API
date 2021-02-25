@@ -37,7 +37,7 @@ const checkIntervalDefault = 120 // two minutes
 
 // CheckTriggerRoutine starts the goroutine schedule
 // to trigger regular checks
-func CheckTriggerRoutine(config *structs.Config, checkInterval int) {
+func CheckTriggerRoutine(config *structs.Config) {
 
 	time.Sleep(time.Duration(4) * time.Second) // Defer initial check
 
@@ -47,6 +47,7 @@ func CheckTriggerRoutine(config *structs.Config, checkInterval int) {
 
 	time.Sleep(time.Duration(1) * time.Second)
 
+	checkInterval := config.CheckInterval
 	if checkInterval == 0 {
 		log.Println("\"check_interval\" not defined in config -> using default")
 		checkInterval = checkIntervalDefault

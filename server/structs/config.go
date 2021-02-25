@@ -16,9 +16,11 @@ type ServiceConfig struct {
 // Config mirrors the config.json file which holds
 // a dictionary of services with their ServiceConfigs
 type Config struct {
-	APIHost       string                   `json:"api_host,omitempty"`
+	Host          string                   `json:"host,omitempty"`
 	DBPath        string                   `json:"db_path,omitempty"`
 	CheckInterval int                      `json:"check_interval,omitempty"`
+	NoFrontend    bool                     `json:"no_frontend,omitempty"`
+	FrontendPath  string                   `json:"frontend_path,omitempty"`
 	Services      map[string]ServiceConfig `json:"services"`
 }
 

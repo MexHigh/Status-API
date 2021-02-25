@@ -21,16 +21,12 @@ const (
 	Down Status = "down"
 )
 
-// Misc is a map, that will be flattened into
-// the Result struct when being marshalled
-type Misc map[string]string // other informations
-
 // A Result represents the health and some other
 // information of a service after it was checked
 type Result struct {
 	Status Status `json:"status"`
 	URL    string `json:"url"`
-	Misc   `json:",omitempty"`
+	Reason string `json:"reason,omitempty"`
 }
 
 // ResultMap maps a result to it's service name

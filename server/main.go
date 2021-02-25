@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"status-api/api"
 	"status-api/database"
 	"status-api/schedules"
+	"status-api/server"
 	"status-api/structs"
 )
 
@@ -37,11 +37,15 @@ func main() {
 	}
 
 	log.Println("Starting trigger routines")
-	go schedules.CheckTriggerRoutine(c, c.CheckInterval)
+	go schedules.CheckTriggerRoutine(c)
 	go schedules.ArchiveTriggerRoutine(c)
 
-	log.Println("Starting API server")
-	if err := api.Start(c.APIHost); err != nil {
+	log.Println("Starting server")
+	if err := server.Start(
+		c.Host,
+		!c.NoFrontend,
+		c.FrontendPath,
+	); err != nil {
 		panic(err)
 	}
 
