@@ -7,8 +7,8 @@ import (
 	"status-api/structs"
 )
 
-// ArchiveTriggerRoutine starts the goroutine schedule
-// to trigger regular archiving
+// ArchiveTriggerRoutine starts the goroutine
+// to trigger archiving of all checks
 func ArchiveTriggerRoutine(config *structs.Config) {
 
 	time.Sleep(time.Duration(2) * time.Second) // Defer start
@@ -35,7 +35,7 @@ func ArchiveTriggerRoutine(config *structs.Config) {
 
 const checkIntervalDefault = 120 // two minutes
 
-// CheckTriggerRoutine starts the goroutine schedule
+// CheckTriggerRoutine starts the goroutine
 // to trigger regular checks
 func CheckTriggerRoutine(config *structs.Config) {
 

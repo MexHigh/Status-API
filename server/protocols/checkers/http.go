@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"status-api/structs"
 	"time"
+
+	"status-api/protocols"
+	"status-api/structs"
 )
+
+var errTooManyRedirects = errors.New("Too many redirects")
 
 // HTTP -
 type HTTP struct{}
-
-var errTooManyRedirects = errors.New("Too many redirects")
 
 // Check -
 func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, error) {
@@ -31,7 +33,7 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 		successCodes = s
 	} // else remain nil
 
-	// do check
+	// prepare client and request
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -45,7 +47,16 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 	if err != nil {
 		return structs.CheckResult{}, err
 	}
-	// TODO add credentials
+
+	// check for basicauth credentials
+	if creds, ok := c.ProtocolConfig["credentials"].(map[string]interface{}); ok {
+		req.SetBasicAuth(
+			creds["username"].(string),
+			creds["password"].(string),
+		)
+	}
+
+	// do it
 	resp, err := client.Do(req)
 	if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
 		return structs.CheckResult{
@@ -89,5 +100,6 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 
 }
 
-// Interface guard
-var _ structs.Checker = (*HTTP)(nil)
+func init() {
+	protocols.Register("http", HTTP{})
+}

@@ -28,7 +28,7 @@ func Start(host string, serveFrontend bool, frontendPath string) error {
 	// frontend router
 	if serveFrontend {
 		if frontendPath == "" {
-			// no "using default" message
+			// no "using default" message here
 			frontendPath = "../frontend/build"
 		}
 		router.PathPrefix("/").Handler(

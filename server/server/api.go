@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+
 	"status-api/database"
 	"status-api/structs"
 )
@@ -19,16 +20,16 @@ func latestHandler(w http.ResponseWriter, r *http.Request) {
 
 func timelineHandler(w http.ResponseWriter, r *http.Request) {
 
-	var tl []structs.ArchiveResultsModel
-	database.Con.Find(&tl)
+	var tlModel []structs.ArchiveResultsModel
+	database.Con.Find(&tlModel)
 
-	tlWithoutData := make([]structs.ArchiveResults, 0, len(tl))
-	for _, v := range tl {
-		tlWithoutData = append(tlWithoutData, structs.ArchiveResults{
+	tl := make([]structs.ArchiveResults, 0, len(tlModel))
+	for _, v := range tlModel {
+		tl = append(tl, structs.ArchiveResults{
 			At:       v.Data.At,
 			Services: v.Data.Services,
 		})
 	}
 
-	respondInstance(&w, &tlWithoutData, 200)
+	respondInstance(&w, &tl, 200)
 }

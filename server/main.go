@@ -6,6 +6,9 @@ import (
 	"log"
 
 	"status-api/database"
+	// enforce compilation of all checkers so that
+	// their init() functions can be called
+	_ "status-api/protocols/checkers"
 	"status-api/schedules"
 	"status-api/server"
 	"status-api/structs"

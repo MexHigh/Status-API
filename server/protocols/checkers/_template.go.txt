@@ -1,0 +1,24 @@
+package checkers
+
+import (
+	"status-api/protocols"
+	"status-api/structs"
+)
+
+// PROTOCOL_NAME -
+type PROTOCOL_NAME struct{}
+
+// Check -
+func (PROTOCOL_NAME) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, error) {
+
+	return structs.CheckResult{
+		Status: "up",
+		URL:    c.FriendlyURL,
+	}, nil
+
+}
+
+// Register checker
+func init() {
+	protocols.Register("PROTOCOL_NAME", PROTOCOL_NAME{})
+}

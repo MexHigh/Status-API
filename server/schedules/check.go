@@ -5,9 +5,12 @@ import (
 	"time"
 
 	"status-api/database"
-	"status-api/schedules/checkers"
 	"status-api/structs"
 )
+
+// Checkers will be filled by protocols.Register()
+// called from within a checker to register themselfs
+var Checkers = make(map[string]structs.Checker)
 
 func runChecks(config *structs.Config) {
 
@@ -25,27 +28,23 @@ func runChecks(config *structs.Config) {
 		// Invoke goroutines for checking every service
 		go func(name string, config structs.ServiceConfig) {
 
-			if config.ProtocolConfig == nil {
+			if config.ProtocolConfig == nil { // create protocolConfig if non-existent
 				config.ProtocolConfig = make(map[string]interface{})
 			}
 
 			var r structs.CheckResult
 			var err error
 
-			switch proto := config.Protocol; proto {
-			case "http":
-				r, err = checkers.HTTP{}.Check(name, &config)
-			default:
-				panic(fmt.Sprintf("Protocol %s not supported", proto)) // TODO should be handled a different way
+			// perform the check if
+			if c, ok := Checkers[config.Protocol]; ok {
+				r, err = c.Check(name, &config)
+			} else {
+				panic(fmt.Sprintf("Protocol %s not supported", config.Protocol))
 			}
 
 			if err != nil {
-				panic(err) // TODO should be handled a different way
+				panic(err)
 			}
-
-			// Idea: Add an error field to ResultWithName and check when
-			// reading from the channel. If there is one, put it in the
-			// Reason field of Result and set the status to "unknown"
 
 			// Write the result to the channel
 			resultsChan <- ResultWithName{
