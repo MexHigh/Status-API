@@ -11,11 +11,17 @@ import (
 // to trigger archiving of all checks
 func ArchiveTriggerRoutine(config *structs.Config) {
 
+	runArchiving(config) // TEMP
+
 	time.Sleep(time.Duration(2) * time.Second) // Defer start
 
-	nextMidnight := func() time.Time {
+	nextMidnight := func() time.Time { // at 23:59:00
 		now := time.Now()
-		return time.Date(now.Year(), now.Month(), now.Day()+1, 0, 3, 0, 0, now.Location())
+		next := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 0, 0, now.Location())
+		if now.After(next) { // if between 23:59:00 and 00:00:00
+			next.Add(time.Duration(24 * time.Hour))
+		}
+		return next
 	}
 
 	for {
