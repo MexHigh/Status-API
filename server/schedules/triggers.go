@@ -11,7 +11,7 @@ import (
 // to trigger archiving of all checks
 func ArchiveTriggerRoutine(config *structs.Config) {
 
-	runArchiving(config) // TEMP
+	//runArchiving(config)
 
 	time.Sleep(time.Duration(2) * time.Second) // Defer start
 

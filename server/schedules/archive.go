@@ -1,7 +1,6 @@
 package schedules
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -18,19 +17,20 @@ func runArchiving(config *structs.Config) {
 		)
 	}
 
-	// get rows and count up-/downtimes
+	// get rows
 	rows, err := database.Con.Model(&structs.CheckResultsModel{}).Rows() // TODO maybe only get todays entries?
 	if err != nil {
-		panic(err)
+		panic(err) // should never happen
 	}
 
+	// count up-/downtimes
 	type UpsAndDowns struct {
 		Ups, Downs int
 		Downtimes  []structs.Downtime
 	}
 
 	udsMap := make(map[string]*UpsAndDowns) // maps service name to UpsAndDowns counter
-	idsToDelete := make([]int, 0)
+	idsToDelete := make([]int, 0)           // holds the IDs used to create the archive result to be deleted later
 
 	for rows.Next() {
 
@@ -59,16 +59,17 @@ func runArchiving(config *structs.Config) {
 	}
 
 	rows.Close()
-	database.Con.Delete(&structs.CheckResultsModel{}, idsToDelete)
+	if len(idsToDelete) > 0 { // suppresses error logs
+		// delete all entries, that were used to compose the archive entry
+		database.Con.Delete(&structs.CheckResultsModel{}, idsToDelete)
+	}
 
 	// Calulate availabilities etc.
 	resultServices := make(map[string]structs.ArchiveResult)
 
 	for name, uds := range udsMap {
 		availabilityFull := float64(uds.Ups) / float64(uds.Ups+uds.Downs)
-		fmt.Println(availabilityFull)
-		availability := math.Round(availabilityFull*100) / 100
-		fmt.Println(availability)
+		availability := math.Round(availabilityFull*100) / 100 // rounds to two decimal places
 		var status string
 		if availability > 0.9 {
 			status = "up"
@@ -84,15 +85,20 @@ func runArchiving(config *structs.Config) {
 		}
 	}
 
+	// store in database
 	resultModel := &structs.ArchiveResultsModel{
 		Data: structs.ArchiveResults{
 			At:       dayOnly(),
 			Services: resultServices,
 		},
 	}
-
-	fmt.Println(resultModel)
-
 	database.Con.Create(resultModel)
+
+	// delete entries older than 30
+	var older []*structs.ArchiveResultsModel
+	// SELECT * FROM archive_results_models ORDER BY id desc LIMIT 1000 OFFSET 30;
+	database.Con.Model(&structs.ArchiveResultsModel{}).Order("id desc").Limit(1000).Offset(30).Scan(&older)
+	// DELETE FROM archive_results_models WHERE ID IN (...)
+	database.Con.Delete(&older)
 
 }
