@@ -36,14 +36,19 @@ func runChecks(config *structs.Config) {
 			var err error
 
 			// perform the check if
+			// TODO find out what i wanted to say in the previous line
 			if c, ok := Checkers[config.Protocol]; ok {
 				r, err = c.Check(name, &config)
 			} else {
 				panic(fmt.Sprintf("Protocol %s not supported", config.Protocol))
 			}
-
+			// on unhandled error from Check method, report down with error reason
 			if err != nil {
-				panic(err)
+				r = structs.CheckResult{
+					Status: "down",
+					URL:    config.FriendlyURL,
+					Reason: err.Error(),
+				}
 			}
 
 			// Write the result to the channel

@@ -18,7 +18,7 @@ RUN npm run build
 FROM scratch
 LABEL maintainer="Leon Schmidt"
 
-# Copy CA-Certs and Timezone info
+# Copy CA certs and timezone info
 COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=go-builder /usr/share/zoneinfo /usr/share/zoneinfo
 # Copy compiled go binary
