@@ -6,7 +6,7 @@ import (
 )
 
 func respondInstance(w *http.ResponseWriter, inst interface{}, statusCode int) {
-	bytes, err := json.Marshal(inst)
+	bytes, err := json.MarshalIndent(inst, "", "    ")
 	if err != nil {
 		panic(err)
 	}
