@@ -13,12 +13,13 @@ import (
 // to trigger archiving of all checks at 23:59 every day
 func StartArchiveTriggerJob(config *structs.Config) {
 
-	time.Sleep(time.Duration(6) * time.Second)
+	time.Sleep(time.Duration(3) * time.Second)
 
 	ran := make(chan bool)
 
-	job, err := scheduler.Every(1).Day().At("12:03").SingletonMode().Do(func() {
-		runArchiving(config, ran)
+	job, err := scheduler.Every(1).Day().At("23:59").SingletonMode().Do(func() {
+		runArchiving(config)
+		ran <- true
 	})
 	if err != nil {
 		panic(err)
@@ -27,12 +28,12 @@ func StartArchiveTriggerJob(config *structs.Config) {
 	for {
 		log.Println("Next archiving scheduled at", job.NextRun())
 		<-ran
-		log.Println("Did archiving at", job.LastRun())
+		log.Println("Did archiving")
 	}
 
 }
 
-func runArchiving(config *structs.Config, ran chan<- bool) {
+func runArchiving(config *structs.Config) {
 
 	dayOnly := func() time.Time {
 		now := time.Now()
@@ -126,7 +127,5 @@ func runArchiving(config *structs.Config, ran chan<- bool) {
 		// DELETE FROM archive_results_models WHERE ID IN (...)
 		database.Con.Delete(&older)
 	}
-
-	ran <- true
 
 }
