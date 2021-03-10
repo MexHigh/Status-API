@@ -7,19 +7,21 @@ import (
 	"errors"
 )
 
-// This file defines an own model to be used
-// with gorm
+// This file defines an own model to be used with gorm
 
+// Model sets a primary key field to model structs
 type Model struct {
 	ID uint `gorm:"primary_key" json:"-"`
 }
 
+// CheckResultsModel wraps CheckResults and makes
+// it JSON serializable in the database
 type CheckResultsModel struct {
 	Model
 	Data CheckResults
 }
 
-// Value implements the driver.Valuer interface for ResultMap
+// Value implements the driver.Valuer interface for CheckResultsModel
 func (a CheckResults) Value() (driver.Value, error) {
 	bytes, err := json.Marshal(&a)
 	if err != nil {
@@ -28,7 +30,7 @@ func (a CheckResults) Value() (driver.Value, error) {
 	return bytes, nil
 }
 
-// Scan implements the sql.Scanner interface for ResultMap
+// Scan implements the sql.Scanner interface for CheckResultsModel
 func (a *CheckResults) Scan(value interface{}) error {
 	bytes, ok := value.([]byte)
 	if !ok {
@@ -44,6 +46,8 @@ func (a *CheckResults) Scan(value interface{}) error {
 var _ driver.Valuer = (*CheckResults)(nil)
 var _ sql.Scanner = (*CheckResults)(nil)
 
+// ArchiveResultsModel wraps ArchiveResults and makes
+// it JSON serializable in the database
 type ArchiveResultsModel struct {
 	Model
 	Data ArchiveResults

@@ -4,5 +4,3 @@ package structs
 type Checker interface {
 	Check(name string, config *ServiceConfig) (CheckResult, error)
 }
-
-// TODO Maybe this is not needed

@@ -15,11 +15,12 @@ func StartArchiveTriggerJob(config *structs.Config) {
 
 	time.Sleep(time.Duration(3) * time.Second)
 
-	ran := make(chan bool)
+	ran := make(chan time.Duration)
 
 	job, err := scheduler.Every(1).Day().At("23:59").SingletonMode().Do(func() {
+		start := time.Now()
 		runArchiving(config)
-		ran <- true
+		ran <- time.Since(start)
 	})
 	if err != nil {
 		panic(err)
@@ -27,8 +28,7 @@ func StartArchiveTriggerJob(config *structs.Config) {
 
 	for {
 		log.Println("Next archiving scheduled at", job.NextRun())
-		<-ran
-		log.Println("Did archiving")
+		log.Printf("Did archiving (took %d ms)", (<-ran).Milliseconds())
 	}
 
 }

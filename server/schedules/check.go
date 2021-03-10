@@ -26,19 +26,19 @@ func StartCheckTriggerJob(config *structs.Config) {
 	}
 	log.Println("Check interval set to", checkInterval, "seconds")
 
-	ran := make(chan bool)
+	ran := make(chan time.Duration)
 
 	_, err := scheduler.Every(checkInterval).Seconds().SingletonMode().Do(func() {
+		start := time.Now()
 		runChecks(config)
-		ran <- true
+		ran <- time.Since(start)
 	})
 	if err != nil {
 		panic(err)
 	}
 
 	for {
-		<-ran
-		log.Println("Did checks")
+		log.Printf("Did checks (took %d ms)", (<-ran).Milliseconds())
 	}
 
 }

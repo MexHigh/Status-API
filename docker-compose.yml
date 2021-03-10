@@ -9,3 +9,5 @@ services:
     volumes:
       - ./config.json:/config.json:ro
       - ./db.sqlite:/db.sqlite
+    environment:
+      TZ: Europe/Berlin
