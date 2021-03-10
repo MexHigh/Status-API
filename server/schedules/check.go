@@ -2,17 +2,51 @@ package schedules
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"status-api/database"
 	"status-api/structs"
 )
 
+const checkIntervalDefault = 5 // two minutes
+
+// StartCheckTriggerJob starts the goroutine
+// to trigger regular checks
+func StartCheckTriggerJob(config *structs.Config) {
+
+	// defer initial check to let the API server start
+	time.Sleep(time.Duration(3) * time.Second)
+
+	// set default interval if not defined in config.json
+	checkInterval := config.CheckInterval
+	if checkInterval == 0 {
+		log.Println("\"check_interval\" not defined in config -> using default")
+		checkInterval = checkIntervalDefault
+	}
+	log.Println("Check interval set to", checkInterval, "seconds")
+
+	ran := make(chan bool)
+
+	_, err := scheduler.Every(checkInterval).Seconds().SingletonMode().Do(func() {
+		runChecks(config, ran)
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		<-ran
+		log.Println("Did checks")
+	}
+
+}
+
 // Checkers will be filled by protocols.Register()
 // called from within a checker to register themselfs
 var Checkers = make(map[string]structs.Checker)
 
-func runChecks(config *structs.Config) {
+func runChecks(config *structs.Config, ran chan<- bool) {
 
 	// ResultWithName is only used here as the channel
 	// type so that only one channel is necessary
@@ -77,5 +111,7 @@ func runChecks(config *structs.Config) {
 		Data: results,
 	}
 	database.Con.Create(model)
+
+	ran <- true
 
 }

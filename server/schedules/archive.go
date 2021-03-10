@@ -1,6 +1,7 @@
 package schedules
 
 import (
+	"log"
 	"math"
 	"time"
 
@@ -8,7 +9,30 @@ import (
 	"status-api/structs"
 )
 
-func runArchiving(config *structs.Config) {
+// StartArchiveTriggerJob starts the goroutine
+// to trigger archiving of all checks at 23:59 every day
+func StartArchiveTriggerJob(config *structs.Config) {
+
+	time.Sleep(time.Duration(6) * time.Second)
+
+	ran := make(chan bool)
+
+	job, err := scheduler.Every(1).Day().At("12:03").SingletonMode().Do(func() {
+		runArchiving(config, ran)
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		log.Println("Next archiving scheduled at", job.NextRun())
+		<-ran
+		log.Println("Did archiving at", job.LastRun())
+	}
+
+}
+
+func runArchiving(config *structs.Config, ran chan<- bool) {
 
 	dayOnly := func() time.Time {
 		now := time.Now()
@@ -98,7 +122,11 @@ func runArchiving(config *structs.Config) {
 	var older []*structs.ArchiveResultsModel
 	// SELECT * FROM archive_results_models ORDER BY id desc LIMIT 1000 OFFSET 30;
 	database.Con.Model(&structs.ArchiveResultsModel{}).Order("id desc").Limit(1000).Offset(30).Scan(&older)
-	// DELETE FROM archive_results_models WHERE ID IN (...)
-	database.Con.Delete(&older)
+	if len(older) > 0 {
+		// DELETE FROM archive_results_models WHERE ID IN (...)
+		database.Con.Delete(&older)
+	}
+
+	ran <- true
 
 }

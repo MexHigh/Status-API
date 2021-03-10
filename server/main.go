@@ -6,11 +6,8 @@ import (
 	"log"
 
 	"status-api/database"
+	_ "status-api/protocols/checkers" // enforce compilation of all checkers
 	"status-api/schedules"
-
-	// enforce compilation of all checkers so that
-	// their init() functions can be called
-	_ "status-api/protocols/checkers"
 	"status-api/server"
 	"status-api/structs"
 )
@@ -36,14 +33,13 @@ func main() {
 		c.DBPath,
 		&structs.CheckResultsModel{},
 		&structs.ArchiveResultsModel{},
-		// TODO add archiveStruct
 	); err != nil {
 		panic(err)
 	}
 
-	log.Println("Starting trigger routines")
-	go schedules.CheckTriggerRoutine(c)
-	go schedules.ArchiveTriggerRoutine(c)
+	log.Println("Starting trigger jobs")
+	go schedules.StartCheckTriggerJob(c)
+	go schedules.StartArchiveTriggerJob(c)
 
 	log.Println("Starting server")
 	if err := server.Start(
