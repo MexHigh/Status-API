@@ -1,7 +1,4 @@
-package minepong
-
-// This file was written by Andrew Tian and Syfaro.
-// Taken from: https://github.com/Syfaro/minepong
+package checkers
 
 import (
 	"bufio"
@@ -9,11 +6,64 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"strconv"
+	"strings"
 	"time"
+
+	"status-api/protocols"
+	"status-api/structs"
 )
+
+// Minecraft -
+type Minecraft struct{}
+
+// Check -
+func (Minecraft) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, error) {
+
+	var hostPort string
+	if hp, ok := c.ProtocolConfig["server_address"].(string); ok {
+		hostPort = hp
+	} else {
+		hostPort = c.FriendlyURL
+		if !strings.Contains(hostPort, ":") {
+			hostPort = hostPort + ":25565"
+		}
+	}
+
+	var res = structs.CheckResult{
+		URL: c.FriendlyURL,
+	}
+
+	pong, err := mineping(hostPort)
+	if err != nil {
+		res.Status = structs.Down
+		if e := err.Error(); !(strings.Contains(e, "i/o timeout") || strings.Contains(e, "connection refused") || strings.Contains(e, "no route to host")) {
+			res.Reason = e
+		}
+	} else {
+		res.Status = structs.Up
+		res.Misc = map[string]string{
+			"version":        pong.Version.Name,
+			"players_online": fmt.Sprintf("%d/%d", pong.Players.Online, pong.Players.Max),
+		}
+	}
+
+	return res, nil
+
+}
+
+// Register checker
+func init() {
+	protocols.Register("minecraft", Minecraft{})
+}
+
+//
+// This following lines of go were written by Andrew Tian and Syfaro.
+// Taken from: https://github.com/Syfaro/minepong
+//
 
 const (
 	protocolVersion = 573
@@ -23,7 +73,7 @@ var (
 	connectionTimeout = 2 * time.Second
 )
 
-type Pong struct {
+type pong struct {
 	Version struct {
 		Name     string
 		Protocol int
@@ -52,7 +102,7 @@ func resolveSRV(addr string) (host string, err error) {
 	return net.JoinHostPort(addrs[0].Target, strconv.Itoa(int(addrs[0].Port))), nil
 }
 
-func Ping(host string) (*Pong, error) {
+func mineping(host string) (*pong, error) {
 	srvHost, err := resolveSRV(host)
 
 	if err == nil {
@@ -68,22 +118,22 @@ func Ping(host string) (*Pong, error) {
 	conn.SetReadDeadline(time.Now().Add(connectionTimeout))
 	conn.SetWriteDeadline(time.Now().Add(connectionTimeout))
 
-	if err := SendHandshake(conn, host); err != nil {
+	if err := sendHandshake(conn, host); err != nil {
 		return nil, err
 	}
 
-	if err := SendStatusRequest(conn); err != nil {
+	if err := sendStatusRequest(conn); err != nil {
 		return nil, err
 	}
 
-	pong, err := ReadPong(conn)
+	p, err := readPong(conn)
 	if err != nil {
 		return nil, err
 	}
 
-	pong.ResolvedHost = host
+	p.ResolvedHost = host
 
-	return pong, nil
+	return p, nil
 }
 
 func makePacket(pl *bytes.Buffer) *bytes.Buffer {
@@ -97,7 +147,7 @@ func makePacket(pl *bytes.Buffer) *bytes.Buffer {
 	return &buf
 }
 
-func SendHandshake(conn net.Conn, host string) error {
+func sendHandshake(conn net.Conn, host string) error {
 	pl := &bytes.Buffer{}
 
 	// packet id
@@ -132,7 +182,7 @@ func SendHandshake(conn net.Conn, host string) error {
 	return nil
 }
 
-func SendStatusRequest(conn net.Conn) error {
+func sendStatusRequest(conn net.Conn) error {
 	pl := &bytes.Buffer{}
 
 	// send request zero
@@ -158,7 +208,7 @@ func encodeVarint(x uint64) []byte {
 	return buf[0:n]
 }
 
-func ReadPong(rd io.Reader) (*Pong, error) {
+func readPong(rd io.Reader) (*pong, error) {
 	r := bufio.NewReader(rd)
 	nl, err := binary.ReadUvarint(r)
 	if err != nil {
@@ -183,10 +233,10 @@ func ReadPong(rd io.Reader) (*Pong, error) {
 		return nil, errors.New("could not read string varint")
 	}
 
-	var pong Pong
-	if err := json.Unmarshal(pl[n+n2:], &pong); err != nil {
+	var p pong
+	if err := json.Unmarshal(pl[n+n2:], &p); err != nil {
 		return nil, errors.New("could not read pong json")
 	}
 
-	return &pong, nil
+	return &p, nil
 }

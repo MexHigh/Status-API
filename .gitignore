@@ -1,3 +1,5 @@
-config.json
-src/status-api
 .theia
+.vscode
+
+# quick test files
+./*.go

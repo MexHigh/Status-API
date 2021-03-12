@@ -1,18 +1,16 @@
-package api
+package server
 
 import (
+	"encoding/json"
 	"net/http"
 )
 
-// checks if a method ("allowedMethods") was used
-func method(r *http.Request, allowedMethods ...string) bool {
-	allowed := true
-	for _, method := range allowedMethods {
-		if r.Method != method {
-			allowed = false
-		}
+func respondInstance(w *http.ResponseWriter, inst interface{}, statusCode int) {
+	bytes, err := json.MarshalIndent(inst, "", "    ")
+	if err != nil {
+		panic(err)
 	}
-	return allowed
+	respondJSON(w, bytes, statusCode)
 }
 
 func respondJSON(w *http.ResponseWriter, json []byte, statusCode int) {

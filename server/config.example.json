@@ -1,0 +1,16 @@
+{
+    "services": {
+        "leon.wtf Homepage": {
+            "friendly_url": "https://leon.wtf",
+            "protocol": "http"
+        },
+        "Leons Teamspeak": {
+            "friendly_url": "ts3server://ts.leon.wtf",
+            "protocol": "teamspeak-ssh"
+        },
+        "Leons Minecraft server": {
+            "friendly_url": "mc.leon.wtf",
+            "protocol": "minecraft"
+        }
+    }
+}
