@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"status-api/database"
+	"status-api/protocols"
 	"status-api/structs"
 )
 
@@ -43,10 +44,6 @@ func StartCheckTriggerJob(config *structs.Config) {
 
 }
 
-// Checkers will be filled by protocols.Register()
-// called from within a checker to register themselfs
-var Checkers = make(map[string]structs.Checker)
-
 func runChecks(config *structs.Config) {
 
 	// ResultWithName is only used here as the channel
@@ -72,7 +69,7 @@ func runChecks(config *structs.Config) {
 
 			// perform the check if
 			// TODO find out what i wanted to say in the previous line
-			if c, ok := Checkers[config.Protocol]; ok {
+			if c := protocols.GetChecker(config.Protocol); c != nil {
 				r, err = c.Check(name, &config)
 			} else {
 				panic(fmt.Sprintf("Protocol %s not supported", config.Protocol))

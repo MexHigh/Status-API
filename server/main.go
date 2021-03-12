@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"status-api/database"
+	"status-api/protocols"
 	_ "status-api/protocols/checkers" // enforce compilation of all checkers
 	"status-api/schedules"
 	"status-api/server"
@@ -21,6 +22,10 @@ func main() {
 	fmt.Println()
 
 	flag.Parse()
+
+	log.Printf(
+		"Registered protocol checkers: %+v", protocols.GetAllCheckerNames(),
+	)
 
 	log.Println("Loading config from", *configPath)
 	c, err := structs.ParseConfig(*configPath)
