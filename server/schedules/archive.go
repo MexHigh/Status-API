@@ -79,9 +79,9 @@ func runArchiving(config *structs.Config) {
 			// this is where the archiving magic happens
 			if service.Status == structs.Up {
 				uds.Ups++
-				// reset lastDownReason to prevent the concatenation of
+				// reset lastDownReason to something random to prevent the concatenation of
 				// downtimes if a previous error occures at a later time again
-				lastDownReason[name] = ""
+				lastDownReason[name] = "V2VyIGRhcyBsaWVzdCBpc3QgZG9vZiA7KQ=="
 			} else {
 				uds.Downs++
 				// check if previous downtime should be ajusted, or if a new one should be created
