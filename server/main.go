@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"strings"
 
 	"status-api/database"
 	"status-api/protocols"
@@ -23,9 +24,8 @@ func main() {
 
 	flag.Parse()
 
-	log.Printf(
-		"Registered protocol checkers: %+v", protocols.GetAllCheckerNames(),
-	)
+	names := "" + strings.Join(protocols.GetAllCheckerNames(), ", ")
+	log.Println("Loaded protocol checkers:", names)
 
 	log.Println("Loading config from", *configPath)
 	c, err := structs.ParseConfig(*configPath)
