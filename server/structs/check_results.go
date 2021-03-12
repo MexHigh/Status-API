@@ -5,10 +5,10 @@ import (
 )
 
 // Status is a string enumaration of a
-// service status ("up"|"down")
+// service status ("up"|"problems"|"down")
 type Status string
 
-const ( // TODO this is currently unused !!!
+const (
 	// Up = "up"
 	Up Status = "up"
 	// Down = "down"

@@ -77,7 +77,7 @@ func runChecks(config *structs.Config) {
 			// on unhandled error from Check method, report down with error reason
 			if err != nil {
 				r = structs.CheckResult{
-					Status: "down",
+					Status: structs.Down,
 					URL:    config.FriendlyURL,
 					Reason: err.Error(),
 				}

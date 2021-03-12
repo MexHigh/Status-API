@@ -12,7 +12,7 @@ type PROTOCOL_NAME struct{}
 func (PROTOCOL_NAME) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, error) {
 
 	return structs.CheckResult{
-		Status: "up",
+		Status: structs.Up,
 		URL:    c.FriendlyURL,
 	}, nil
 

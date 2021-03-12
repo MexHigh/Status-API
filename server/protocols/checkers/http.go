@@ -60,13 +60,13 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 	resp, err := client.Do(req)
 	if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
 		return structs.CheckResult{
-			Status: "down",
+			Status: structs.Down,
 			URL:    c.FriendlyURL,
 			Reason: "timeout",
 		}, nil
 	} else if errors.Is(err, errTooManyRedirects) {
 		return structs.CheckResult{
-			Status: "down",
+			Status: structs.Down,
 			URL:    c.FriendlyURL,
 			Reason: "too many redirects",
 		}, nil
@@ -78,7 +78,7 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 		for _, sc := range successCodes {
 			if resp.StatusCode == int(sc.(float64)) {
 				return structs.CheckResult{
-					Status: "up",
+					Status: structs.Up,
 					URL:    c.FriendlyURL,
 				}, nil
 			}
@@ -86,14 +86,14 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 	} else {
 		if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 			return structs.CheckResult{
-				Status: "up",
+				Status: structs.Up,
 				URL:    c.FriendlyURL,
 			}, nil
 		}
 	}
 
 	return structs.CheckResult{
-		Status: "down",
+		Status: structs.Down,
 		URL:    c.FriendlyURL,
 		Reason: fmt.Sprintf("status code %d does not match conditions", resp.StatusCode),
 	}, nil

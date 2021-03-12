@@ -15,7 +15,7 @@ type Downtime struct {
 // ArchiveResult represents the status and availability of
 // a service over a longer period. Downtimes are tracked as well
 type ArchiveResult struct {
-	Status       string     `json:"status"`
+	Status       Status     `json:"status"`
 	Availability float64    `json:"availability"`
 	Downtimes    []Downtime `json:"downtimes"`
 }

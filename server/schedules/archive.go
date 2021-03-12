@@ -77,7 +77,7 @@ func runArchiving(config *structs.Config) {
 			}
 
 			// this is where the archiving magic happens
-			if service.Status == "up" {
+			if service.Status == structs.Up {
 				uds.Ups++
 				// reset lastDownReason to prevent the concatenation of
 				// downtimes if a previous error occures at a later time again
@@ -119,13 +119,13 @@ func runArchiving(config *structs.Config) {
 	for name, uds := range udsMap {
 		availabilityFull := float64(uds.Ups) / float64(uds.Ups+uds.Downs)
 		availability := math.Round(availabilityFull*10000) / 10000 // rounds to four decimal places
-		var status string
+		var status structs.Status
 		if availability > 0.9 {
-			status = "up"
+			status = structs.Up
 		} else if availability > 0.7 {
-			status = "problems"
+			status = structs.Problems
 		} else {
-			status = "down"
+			status = structs.Down
 		}
 		resultServices[name] = structs.ArchiveResult{
 			Status:       status,
