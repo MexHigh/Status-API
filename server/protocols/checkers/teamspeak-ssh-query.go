@@ -37,13 +37,13 @@ func (TeamspeakSSHQuery) Check(name string, c *structs.ServiceConfig) (structs.C
 	}
 
 	_, err := ssh.Dial("tcp", hostPort, sshConfig)
-	if strings.Contains(err.Error(), "connection refused") || strings.Contains(err.Error(), "no route to host") { // ssh endpoint not responding
+	if e := err.Error(); strings.Contains(e, "connection refused") || strings.Contains(e, "no route to host") { // ssh endpoint not responding
 		res.Status = structs.Down
-	} else if strings.Contains(err.Error(), "unable to authenticate") { // authentication error, but reachable
+	} else if strings.Contains(e, "unable to authenticate") { // authentication error, but reachable
 		res.Status = structs.Up
 	} else if err != nil { // unknown error
 		res.Status = structs.Down
-		res.Reason = err.Error()
+		res.Reason = e
 	} else { // connection could be established???
 		res.Status = structs.Down
 		res.Reason = "Connection could be established without authentication! Please check your teamspeak config!"

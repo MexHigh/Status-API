@@ -20,9 +20,10 @@ const (
 // A CheckResult is the status, url and an optional
 // downtime reason at a specific point in time
 type CheckResult struct {
-	Status Status `json:"status"`
-	URL    string `json:"url"`
-	Reason string `json:"reason,omitempty"`
+	Status Status            `json:"status"`
+	URL    string            `json:"url"`
+	Reason string            `json:"reason,omitempty"`
+	Misc   map[string]string `json:"misc,omitempty"`
 }
 
 // CheckResults wraps multiple CheckResults structs
