@@ -48,38 +48,62 @@ func runArchiving(config *structs.Config) {
 		panic(err) // should never happen
 	}
 
-	// count up-/downtimes
-	type UpsAndDowns struct {
+	// counts up-/downtimes (only used locally)
+	type upsAndDowns struct {
 		Ups, Downs int
 		Downtimes  []structs.Downtime
 	}
 
-	udsMap := make(map[string]*UpsAndDowns) // maps service name to UpsAndDowns counter
-	idsToDelete := make([]int, 0)           // holds the IDs used to create the archive result to be deleted later
+	udsMap := make(map[string]*upsAndDowns)   // maps service name to UpsAndDowns counter
+	lastDownReason := make(map[string]string) // maps the last reason of downtime to a service name
+	idsToDelete := make([]int, 0)             // holds the IDs used to create the archive result to be deleted later
 
-	for rows.Next() {
+	for rows.Next() { // iterates over CheckResults
 
-		arch := &structs.CheckResultsModel{}
-		database.Con.ScanRows(rows, arch)
+		currentCr := &structs.CheckResultsModel{}
+		database.Con.ScanRows(rows, currentCr)
 
-		for name, service := range arch.Data.Services {
-			if _, ok := udsMap[name]; !ok { // checks if upsAndDowns object exists
-				udsMap[name] = &UpsAndDowns{
+		for name, service := range currentCr.Data.Services { // iterates over one service in a CheckResults (yields service name and CheckResult)
+
+			var uds *upsAndDowns                // local uds object (pointer to map entry) for shorter variable names
+			if locUds, ok := udsMap[name]; ok { // checks if upsAndDowns object exists
+				uds = locUds
+			} else { // otherwise create a new one
+				locUds = &upsAndDowns{
 					Downtimes: make([]structs.Downtime, 0),
 				}
+				udsMap[name] = locUds // save new upsAndDowns in map
+				uds = udsMap[name]    // reference the newly created upsAndDowns
 			}
+
+			// this is where the archiving magic happens
 			if service.Status == "up" {
-				udsMap[name].Ups++
+				uds.Ups++
+				// reset lastDownReason to prevent the concatenation of
+				// downtimes if a previous error occures at a later time again
+				lastDownReason[name] = ""
 			} else {
-				udsMap[name].Downs++
-				udsMap[name].Downtimes = append(udsMap[name].Downtimes, structs.Downtime{
-					At:     arch.Data.At,
-					Reason: service.Reason,
-				})
+				uds.Downs++
+				// check if previous downtime should be ajusted, or if a new one should be created
+				if lastDownReason[name] == service.Reason {
+					// if the reason of the last downtime is the same as this one just
+					// overwrite the latter 'To' field to the time of the current downtime
+					lastDowntime := &uds.Downtimes[len(uds.Downtimes)-1] // gets pointer to last downtime
+					lastDowntime.To = currentCr.Data.At
+				} else {
+					// if the reason is a new one, create a new downtime object and overwrite the lastDownReason
+					uds.Downtimes = append(uds.Downtimes, structs.Downtime{
+						From:   currentCr.Data.At,
+						To:     currentCr.Data.At,
+						Reason: service.Reason,
+					})
+					lastDownReason[name] = service.Reason
+				}
 			}
+
 		}
 
-		idsToDelete = append(idsToDelete, int(arch.ID))
+		idsToDelete = append(idsToDelete, int(currentCr.ID))
 
 	}
 
@@ -89,12 +113,12 @@ func runArchiving(config *structs.Config) {
 		database.Con.Delete(&structs.CheckResultsModel{}, idsToDelete)
 	}
 
-	// Calulate availabilities etc.
+	// calulate availabilities etc.
 	resultServices := make(map[string]structs.ArchiveResult)
 
 	for name, uds := range udsMap {
 		availabilityFull := float64(uds.Ups) / float64(uds.Ups+uds.Downs)
-		availability := math.Round(availabilityFull*100) / 100 // rounds to two decimal places
+		availability := math.Round(availabilityFull*10000) / 10000 // rounds to four decimal places
 		var status string
 		if availability > 0.9 {
 			status = "up"
@@ -124,7 +148,7 @@ func runArchiving(config *structs.Config) {
 	// SELECT * FROM archive_results_models ORDER BY id desc LIMIT 1000 OFFSET 30;
 	database.Con.Model(&structs.ArchiveResultsModel{}).Order("id desc").Limit(1000).Offset(30).Scan(&older)
 	if len(older) > 0 {
-		// DELETE FROM archive_results_models WHERE ID IN (...)
+		// DELETE FROM archive_results_models WHERE ID IN (...);
 		database.Con.Delete(&older)
 	}
 

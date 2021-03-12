@@ -8,7 +8,7 @@ import (
 // service status ("up"|"down")
 type Status string
 
-const (
+const ( // TODO this is currently unused !!!
 	// Up = "up"
 	Up Status = "up"
 	// Down = "down"
