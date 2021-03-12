@@ -1,0 +1,5 @@
+frontend/build
+frontend/node_modules
+server/*.sqlite
+server/*.sqlite3
+server/*.db
