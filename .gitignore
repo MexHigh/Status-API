@@ -3,6 +3,3 @@
 
 # quick test files
 ./*.go
-
-#TEMP
-src/status-api
