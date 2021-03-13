@@ -10,7 +10,7 @@ import (
 type ServiceConfig struct {
 	FriendlyURL    string                 `json:"friendly_url"`
 	Protocol       string                 `json:"protocol"`
-	ProtocolConfig map[string]interface{} `json:"protocol_config"`
+	ProtocolConfig map[string]interface{} `json:"protocol_config,omitempty"`
 }
 
 // Config mirrors the config.json file which holds

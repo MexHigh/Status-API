@@ -20,8 +20,9 @@ func (TeamspeakSSHQuery) Check(name string, c *structs.ServiceConfig) (structs.C
 	if hp, ok := c.ProtocolConfig["query_address"].(string); ok {
 		hostPort = hp
 	} else {
-		hostPort = c.FriendlyURL + ":10022"
 		hostPort = strings.ReplaceAll(hostPort, "ts3server://", "")
+		hostPort = strings.Split(hostPort, "?")[0]
+		hostPort = c.FriendlyURL + ":10022"
 	}
 
 	var res = structs.CheckResult{
