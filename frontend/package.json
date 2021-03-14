@@ -11,11 +11,18 @@
         "react-scripts": "4.0.3",
         "web-vitals": "^1.1.0"
     },
+    "devDependencies": {
+        "@craco/craco": "^6.1.1",
+        "@tailwindcss/postcss7-compat": "^2.0.3",
+        "autoprefixer": "^9.8.6",
+        "postcss": "^7.0.35",
+        "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3"
+    },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "start": "craco start",
+        "build": "craco build",
+        "test": "craco test",
+        "eject-DO-NOT-USE-THIS": "react-scripts eject"
     },
     "eslintConfig": {
         "extends": [
