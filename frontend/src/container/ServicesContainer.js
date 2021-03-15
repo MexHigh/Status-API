@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import Header from "../components/Header"
 import Loading from "../components/Loading"
 import ServiceContainer from "./ServiceContainer"
 
@@ -24,7 +25,7 @@ export default function ServicesContainer() {
     else {
         return (
             <div>
-                <h1>Last check: {data.at}</h1>
+                <Header lastCheckTs={data.at} />
                 {
                     Object.entries(data.services).map(([key, value]) => 
                         <ServiceContainer key={key} service={key} />
