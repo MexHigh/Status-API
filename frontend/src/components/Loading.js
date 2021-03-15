@@ -1,7 +1,9 @@
 import React from "react"
 
 export default function Loading() {
+
     const color = "#000"
+
     return (
         <div className="w-full h-full">
             <div className="relative top-1/3">
@@ -28,4 +30,5 @@ export default function Loading() {
             </div>
         </div>
     )
+    
 }

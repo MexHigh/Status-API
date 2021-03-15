@@ -4,8 +4,8 @@ export default function StatusPill({status}) {
 
     let color = "gray"
 
-    if (status){
-        switch(status){
+    if (status) {
+        switch (status) {
             case "up": 
                 color = "green";
                 break;

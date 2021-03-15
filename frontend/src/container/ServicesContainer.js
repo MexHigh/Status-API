@@ -9,13 +9,13 @@ export default function ServicesContainer() {
     const [ data, setData ] = useState()
 
     useEffect(() => {
-/*
+
         fetch("https://status.leon.wtf/api/services/latest")
             .then(r => r.json())
             .then(r => {
                 setData(r)
             })
-*/
+
     }, [])
 
     if (!data) {
