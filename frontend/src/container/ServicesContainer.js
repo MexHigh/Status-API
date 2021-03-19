@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import Footer from "../components/Footer"
 import Header from "../components/Header"
 import Loading from "../components/Loading"
 import ServiceContainer from "./ServiceContainer"
@@ -56,6 +57,7 @@ export default function ServicesContainer() {
 						/>
 					)
 				)}
+				<Footer />
 			</div>
 		)
 
