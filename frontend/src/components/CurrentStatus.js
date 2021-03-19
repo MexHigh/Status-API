@@ -6,7 +6,7 @@ export default function CurrentStatus({ status }) {
 
 	return (
 		<div className={`w-32 bg-${color} rounded-lg text-center`}>
-			<p>{status ? status : "loading"}</p>
+			<p>{status}</p>
 		</div>
 	)
 }

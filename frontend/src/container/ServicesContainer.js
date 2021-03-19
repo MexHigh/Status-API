@@ -31,12 +31,19 @@ export default function ServicesContainer() {
 		return <Loading />
 	} else {
 
+		// restructure the response from /api/services/timeline
+		// so that every ServiceContainer component receives only
+		// it's own timeline array containing only one service
 		let serviceTimeline = {}
 		timeline.forEach(day => {
+			// iterates over every service reported in one day
 			for (const [name, status] of Object.entries(day.services)) {
+				// create the timeline array, if it does not exist
 				if (!serviceTimeline[name]) {
 					serviceTimeline[name] = []
 				}
+				// append the status for a service and 
+				// slice in the "at" timestamp
 				serviceTimeline[name].push({
 					at: day.at,
 					...status
@@ -47,8 +54,10 @@ export default function ServicesContainer() {
 		return (
 			<div>
 				<Header lastCheckTs={latest.at} />
-				{Object.entries(latest.services).map(
-					([serviceName, latestStatus]) => (
+				{
+					// map over the latest service report to calculate
+					// the number of ServiceContainer components
+					Object.entries(latest.services).map(([serviceName, latestStatus]) => (
 						<ServiceContainer
 							key={serviceName}
 							name={serviceName}
