@@ -7,7 +7,7 @@ import ServiceContainer from "./ServiceContainer"
 // ServicesContainer bundles multiple ServiceContainer components.
 // The whole fetch magic should propably happen in here.
 export default function ServicesContainer() {
-
+	
 	const [latest, setLatest] = useState()
 	const [timeline, setTimeline] = useState()
 
@@ -42,14 +42,14 @@ export default function ServicesContainer() {
 				if (!serviceTimeline[name]) {
 					serviceTimeline[name] = []
 				}
-				// append the status for a service and 
+				// append the status for a service and
 				// slice in the "at" timestamp
 				serviceTimeline[name].push({
 					at: day.at,
-					...status
+					...status,
 				})
 			}
-		});
+		})
 
 		return (
 			<div>
@@ -64,12 +64,10 @@ export default function ServicesContainer() {
 							latest={latestStatus}
 							timeline={serviceTimeline[serviceName]}
 						/>
-					)
-				)}
+					))
+				}
 				<Footer />
 			</div>
 		)
-
 	}
-
 }
