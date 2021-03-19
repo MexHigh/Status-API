@@ -75,6 +75,7 @@ func runArchiving(config *structs.Config) {
 				udsMap[name] = locUds // save new upsAndDowns in map
 				uds = udsMap[name]    // reference the newly created upsAndDowns
 			}
+			lastDownReason[name] = "V2VyIGRhcyBsaWVzdCBpc3QgZG9vZiA7KQ=="
 
 			// this is where the archiving magic happens
 			if service.Status == structs.Up {
