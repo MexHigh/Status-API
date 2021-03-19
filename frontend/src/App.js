@@ -1,5 +1,5 @@
-import ServicesContainer from './container/ServicesContainer'
+import ServicesContainer from "./container/ServicesContainer"
 
 export default function App() {
-    return <ServicesContainer />
+	return <ServicesContainer />
 }
