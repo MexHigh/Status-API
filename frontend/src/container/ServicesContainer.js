@@ -6,10 +6,12 @@ import ServiceContainer from "./ServiceContainer"
 // ServicesContainer bundles multiple ServiceContainer components.
 // The whole fetch magic should propably happen in here.
 export default function ServicesContainer() {
+
 	const [latest, setLatest] = useState()
 	const [timeline, setTimeline] = useState()
 
 	useEffect(() => {
+
 		fetch("https://status.leon.wtf/api/services/latest")
 			.then(r => r.json())
 			.then(r => {
@@ -21,12 +23,13 @@ export default function ServicesContainer() {
 			.then(r => {
 				setTimeline(r)
 			})
+
 	}, [])
 
 	if (!latest || !timeline) {
 		return <Loading />
 	} else {
-		
+
 		let serviceTimeline = {}
 		timeline.forEach(day => {
 			for (const [name, status] of Object.entries(day.services)) {
@@ -55,5 +58,7 @@ export default function ServicesContainer() {
 				)}
 			</div>
 		)
+
 	}
+
 }

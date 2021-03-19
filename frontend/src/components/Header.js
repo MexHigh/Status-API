@@ -2,7 +2,7 @@ import React from "react"
 
 export default function Header({ lastCheckTs }) {
 	return (
-		<header className="bg-blue-200 m-4 rounded-full">
+		<header className="bg-white shadow m-4 rounded-full">
 			<div className="flex justify-between py-2 px-10">
                 {/* Left side */}
                 <div className="flex w-1/3">

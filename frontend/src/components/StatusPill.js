@@ -19,5 +19,5 @@ export default function StatusPill({ status }) {
 		}
 	}
 
-	return <div className={`w-4 h-8 bg-${color}-400 mx-1`}></div>
+	return <div className={`w-4 h-8 bg-${color}-300 mx-1 rounded-lg`}></div>
 }
