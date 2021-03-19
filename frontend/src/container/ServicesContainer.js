@@ -13,13 +13,13 @@ export default function ServicesContainer() {
 
 	useEffect(() => {
 
-		fetch("https://status.leon.wtf/api/services/latest")
+		fetch("/api/services/latest")
 			.then(r => r.json())
 			.then(r => {
 				setLatest(r)
 			})
 
-		fetch("https://status.leon.wtf/api/services/timeline")
+		fetch("/api/services/timeline")
 			.then(r => r.json())
 			.then(r => {
 				setTimeline(r)

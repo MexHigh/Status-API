@@ -26,6 +26,7 @@
 		"eject-DO-NOT-USE-THIS": "react-scripts eject",
 		"prettify": "prettier --write ."
 	},
+	"proxy": "https://status.leon.wtf",
 	"eslintConfig": {
 		"extends": [
 			"react-app",
