@@ -1,6 +1,6 @@
 {
-	"short_name": "React App",
-	"name": "Create React App Sample",
+	"short_name": "Status API",
+	"name": "Status API for leon.wtf",
 	"icons": [
 		{
 			"src": "favicon.ico",
