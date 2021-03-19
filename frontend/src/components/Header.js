@@ -2,21 +2,22 @@ import React from "react"
 
 export default function Header({ lastCheckTs }) {
 	return (
-		<header className="bg-white shadow m-4 rounded-full">
-			<div className="flex justify-between py-2 px-10">
-                {/* Left side */}
-                <div className="flex w-1/3">
-                    {/* TODO */}
-                    <img className="w-10" src="https://cdn.leon.wtf/icon/logo-header.svg" alt="Header logo" />
-				    <p className="text-red-500">Status API</p>
+		<header className="m-4 mx-auto max-w-5xl flex justify-between items-center py-2 px-10">
+            {/* Left side */}
+            <div className="flex items-center w-1/3">
+                <div className="w-20 mr-4">
+                    <img src="https://cdn.leon.wtf/icon/logo-email-sig.png" alt="Header logo" />
                 </div>
-                {/* Right side */}
-                <div>
-                    <p className="text-red-500">
-                        {new Date(lastCheckTs).toLocaleString("de-DE")}
-                    </p>
-                </div>
-			</div>
+                <h1 className="text-xl">
+                    Status API for <span className="font-bold">leon.wtf</span>
+                </h1>
+            </div>
+            {/* Right side */}
+            <div>
+                <h1 className="text-xl">
+                    Last update: <span className="font-bold">{new Date(lastCheckTs).toLocaleString("de-DE")}</span>
+                </h1>
+            </div>
 		</header>
 	)
 }
