@@ -26,6 +26,20 @@ export default function ServicesContainer() {
 	if (!latest || !timeline) {
 		return <Loading />
 	} else {
+		
+		let serviceTimeline = {}
+		timeline.forEach(day => {
+			for (const [name, status] of Object.entries(day.services)) {
+				if (!serviceTimeline[name]) {
+					serviceTimeline[name] = []
+				}
+				serviceTimeline[name].push({
+					at: day.at,
+					...status
+				})
+			}
+		});
+
 		return (
 			<div>
 				<Header lastCheckTs={latest.at} />
@@ -35,7 +49,7 @@ export default function ServicesContainer() {
 							key={serviceName}
 							name={serviceName}
 							latest={latestStatus}
-							timeline={"lol"}
+							timeline={serviceTimeline[serviceName]}
 						/>
 					)
 				)}
