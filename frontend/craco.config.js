@@ -12,6 +12,7 @@ module.exports = {
 			new HtmlWebpackPlugin(),
 			new CspHtmlWebpackPlugin({
 					"default-src": "'self'",
+					"style-src": "'self' 'unsafe-inline' data:",
 					"img-src": "*"
 			})
 		]
