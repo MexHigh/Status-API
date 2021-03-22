@@ -25,7 +25,7 @@
 		"test": "craco test",
 		"eject-DO-NOT-USE-THIS": "react-scripts eject"
 	},
-	"proxy": "https://status.leon.wtf",
+	"proxy": "http://localhost:3002",
 	"eslintConfig": {
 		"extends": [
 			"react-app",
