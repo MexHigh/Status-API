@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"status-api/protocols"
@@ -70,9 +71,16 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 			URL:    c.FriendlyURL,
 			Reason: "too many redirects",
 		}, nil
-	} else if err != nil {
-		return structs.CheckResult{}, err // TODO is this ok to return an empty result?
+	} else if strings.Contains(err.Error(), "no route to host") { // TODO there might be a better way to solve this
+		return structs.CheckResult{
+			Status: structs.Down,
+			URL:    c.FriendlyURL,
+			Reason: "no route to host",
+		}, nil
+	} else if err != nil { // unknown error
+		return structs.CheckResult{}, err
 	}
+	defer resp.Body.Close()
 
 	if successCodes != nil {
 		for _, sc := range successCodes {
