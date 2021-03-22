@@ -30,7 +30,12 @@ export default function ServiceContainer({ name, latest, timeline }) {
 		<div className="px-12 py-8 mx-auto my-12 w-5/6 max-w-5xl shadow-lg rounded-lg">
 			{/* First line */}
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
-				<a className="font-bold text-xl ml-2" href={latest.url}>
+				<a 
+					className="font-bold text-xl ml-2" 
+					href={latest.url} 
+					target="_blank" 
+					rel="noreferrer"
+				>
 					{name}
 				</a>
 				<CurrentStatus status={latest.status} />

@@ -7,12 +7,14 @@ export default function MiscEntries({ misc }) {
     return (
         <div className="mx-2 flex flex-row text-gray-700">
             {
-                Object.entries(misc).map(([k, v]) => (
-                    <div key={k} className="mt-6 w-1/6">
+                // runs over the misc object an creates an own
+                // div for every entry
+                Object.entries(misc).map(([key, value]) => (
+                    <div key={key} className="mt-6 w-1/6">
                         <h3 className="font-bold capitalize">
-                            {k.replace("_", " ")}
+                            {key.replace("_", " ")}
                         </h3>
-                        <p>{v}</p>
+                        <p>{value}</p>
                     </div>
                 ))
             }
