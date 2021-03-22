@@ -1,23 +1,23 @@
 import React from "react"
 
 export default function StatusPill({ status }) {
-	let color = "gray"
+	
+	let color
 
-	if (status) {
-		switch (status) {
-			case "up":
-				color = "green"
-				break
-			case "problems":
-				color = "yellow"
-				break
-			case "down":
-				color = "red"
-				break
-			default:
-				color = "gray"
-		}
+	switch (status) {
+		case "up":
+			color = "bg-green-300"
+			break
+		case "problems":
+			color = "bg-yellow-300"
+			break
+		case "down":
+			color = "bg-red-300"
+			break
+		default: // or !status
+			color = "bg-gray-300"
 	}
 
-	return <div className={`w-4 h-8 bg-${color}-300 mx-1 rounded-lg`}></div>
+	return <div className={`w-4 h-8 ${color} mx-1 rounded-lg`}></div>
+
 }
