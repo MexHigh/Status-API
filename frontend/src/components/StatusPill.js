@@ -15,7 +15,7 @@ export default function StatusPill({ status }) {
 			color = "bg-red-300"
 			break
 		default: // or !status
-			color = "bg-gray-300"
+			color = "bg-gray-200"
 	}
 
 	return <div className={`w-4 h-8 ${color} mx-1 rounded-lg`}></div>
