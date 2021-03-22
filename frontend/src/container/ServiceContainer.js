@@ -1,5 +1,6 @@
 import React from "react"
 import CurrentStatus from "../components/CurrentStatus"
+import MiscEntries from "../components/MiscEntries"
 import StatusPill from "../components/StatusPill"
 
 // ServiceContainer bundles the service name, StatusPill and
@@ -38,6 +39,8 @@ export default function ServiceContainer({ name, latest, timeline }) {
 			<div className="flex justify-between">
 				{makePills()}
 			</div>
+			{/* Third line (optional) */}
+			<MiscEntries misc={latest.misc} />
 		</div>
 	)
 }
