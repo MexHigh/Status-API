@@ -59,26 +59,27 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 
 	// do it
 	resp, err := client.Do(req)
-	if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
-		return structs.CheckResult{
-			Status: structs.Down,
-			URL:    c.FriendlyURL,
-			Reason: "timeout",
-		}, nil
-	} else if errors.Is(err, errTooManyRedirects) {
-		return structs.CheckResult{
-			Status: structs.Down,
-			URL:    c.FriendlyURL,
-			Reason: "too many redirects",
-		}, nil
-	} else if strings.Contains(err.Error(), "no route to host") { // TODO there might be a better way to solve this
-		return structs.CheckResult{
-			Status: structs.Down,
-			URL:    c.FriendlyURL,
-			Reason: "no route to host",
-		}, nil
-	} else if err != nil { // unknown error
-		return structs.CheckResult{}, err
+	if err != nil {
+		if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "timeout",
+			}, nil
+		} else if errors.Is(err, errTooManyRedirects) { // if error is errTooManyRedirects
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "too many redirects",
+			}, nil
+		} else if strings.Contains(err.Error(), "no route to host") { // TODO there might be a better way to solve this
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "no route to host",
+			}, nil
+		}
+		return structs.CheckResult{}, err // unknown error
 	}
 	defer resp.Body.Close()
 
