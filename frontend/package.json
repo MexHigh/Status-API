@@ -17,17 +17,15 @@
 		"autoprefixer": "^9.8.6",
 		"csp-html-webpack-plugin": "^5.1.0",
 		"postcss": "^7.0.35",
-		"prettier": "2.2.1",
 		"tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3"
 	},
 	"scripts": {
 		"start": "craco start",
 		"build": "craco build",
 		"test": "craco test",
-		"eject-DO-NOT-USE-THIS": "react-scripts eject",
-		"prettify": "prettier --write ."
+		"eject-DO-NOT-USE-THIS": "react-scripts eject"
 	},
-	"proxy": "https://status.leon.wtf",
+	"proxy": "http://localhost:3002",
 	"eslintConfig": {
 		"extends": [
 			"react-app",

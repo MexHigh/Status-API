@@ -62,7 +62,7 @@ export default function ServicesContainer() {
 							key={serviceName}
 							name={serviceName}
 							latest={latestStatus}
-							timeline={serviceTimeline[serviceName]}
+							timeline={serviceTimeline[serviceName] || []}
 						/>
 					))
 				}

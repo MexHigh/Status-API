@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"status-api/protocols"
@@ -58,21 +59,29 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 
 	// do it
 	resp, err := client.Do(req)
-	if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
-		return structs.CheckResult{
-			Status: structs.Down,
-			URL:    c.FriendlyURL,
-			Reason: "timeout",
-		}, nil
-	} else if errors.Is(err, errTooManyRedirects) {
-		return structs.CheckResult{
-			Status: structs.Down,
-			URL:    c.FriendlyURL,
-			Reason: "too many redirects",
-		}, nil
-	} else if err != nil {
-		return structs.CheckResult{}, err // TODO is this ok to return an empty result?
+	if err != nil {
+		if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "timeout",
+			}, nil
+		} else if errors.Is(err, errTooManyRedirects) { // if error is errTooManyRedirects
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "too many redirects",
+			}, nil
+		} else if strings.Contains(err.Error(), "no route to host") { // TODO there might be a better way to solve this
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "no route to host",
+			}, nil
+		}
+		return structs.CheckResult{}, err // unknown error
 	}
+	defer resp.Body.Close()
 
 	if successCodes != nil {
 		for _, sc := range successCodes {
