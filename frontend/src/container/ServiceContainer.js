@@ -14,12 +14,20 @@ export default function ServiceContainer({ name, latest, timeline }) {
 		// count the timeline entries and add as many grey
 		// StatusPills so that there are 30 in total
 		for (let i = 30 - timeline.length; i > 0; i--) {
-			pills.push(<StatusPill key={i} />)
+			pills.push(
+				<StatusPill key={i} />
+			)
 		}
 
 		// add the actual status entry pills
-		timeline.forEach(day => {
-			pills.push(<StatusPill key={day.at} status={day.status} />)
+		timeline.forEach((day, i) => {
+			pills.push(
+				<StatusPill 
+					key={i + 30} 
+					status={day.status}
+					downtimes={day.downtimes}
+				/>
+			)
 		})
 
 		return pills // should have a length of 30
