@@ -1,6 +1,7 @@
 import React, { useState } from "react"
+import StatusHoverMenu from "./StatusHoverMenu"
 
-export default function StatusPill({ status, downtimes }) {
+export default function StatusPill({ forDay, status, availability, downtimes }) {
 
 	const [ hovering, setHovering ] = useState(false)
 	
@@ -28,13 +29,16 @@ export default function StatusPill({ status, downtimes }) {
 		>
 
 			{/* Status Pill */}
-			<div className={`w-4 h-8 ${color} mx-1 rounded-lg`}></div>
+			<div className={`w-4 h-8 ${color} mx-1 rounded-xl`}></div>
 
 			{/* Hover Menu */}
 			{ hovering && 
-				<div className="absolute top-10 w-32 h-16 shadow-xl bg-gray-100 rounded-lg">
-					
-				</div> 
+				<StatusHoverMenu
+					forDay={forDay}
+					status={status}
+					availability={availability}
+					downtimes={downtimes}
+				/>
 			}
 			
 		</div>

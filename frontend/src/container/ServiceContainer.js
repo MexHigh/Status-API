@@ -15,7 +15,9 @@ export default function ServiceContainer({ name, latest, timeline }) {
 		// StatusPills so that there are 30 in total
 		for (let i = 30 - timeline.length; i > 0; i--) {
 			pills.push(
-				<StatusPill key={i} />
+				<StatusPill 
+					key={i} 
+				/>
 			)
 		}
 
@@ -23,8 +25,10 @@ export default function ServiceContainer({ name, latest, timeline }) {
 		timeline.forEach((day, i) => {
 			pills.push(
 				<StatusPill 
-					key={i + 30} 
+					key={i + 30}
+					forDay={day.at}
 					status={day.status}
+					availability={day.availability}
 					downtimes={day.downtimes}
 				/>
 			)
