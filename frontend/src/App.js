@@ -6,30 +6,26 @@ import StatusSummary from "./components/StatusSummary"
 import ServiceContainer from "./components/ServiceContainer"
 
 export default function App() {
-	
+
 	const [latest, setLatest] = useState()
 	const [timeline, setTimeline] = useState()
 
 	useEffect(() => {
-
 		fetch("/api/services/latest")
 			.then(r => r.json())
 			.then(r => {
 				setLatest(r)
 			})
-
 		fetch("/api/services/timeline")
 			.then(r => r.json())
 			.then(r => {
 				setTimeline(r)
 			})
-
 	}, [])
 
 	if (!latest || !timeline) {
 		return <Loading />
 	} else {
-
 		// restructure the response from /api/services/timeline
 		// so that every ServiceContainer component receives only
 		// it's own timeline array containing only one service
@@ -51,23 +47,37 @@ export default function App() {
 		})
 
 		return (
-			<div>
-				<Header lastCheckTs={latest.at} />
-				<StatusSummary latest={latest}/>
-				{
-					// map over the latest service report to calculate
-					// the number of ServiceContainer components
-					Object.entries(latest.services).map(([serviceName, latestStatus]) => (
-						<ServiceContainer
-							key={serviceName}
-							name={serviceName}
-							latest={latestStatus}
-							timeline={serviceTimeline[serviceName] || []}
-						/>
-					))
-				}
-				<Footer />
-			</div>
+			<>
+				<header id="header" className="mx-auto max-w-5xl mb-10">
+					<Header lastCheckTs={latest.at} />
+				</header>
+				<main>
+					<div id="status-summary" className="mx-auto w-max">
+						<StatusSummary latest={latest} />
+					</div>
+					<div id="services">
+						{
+							// map over the latest service report to calculate
+							// the number of ServiceContainer components
+							Object.entries(latest.services).map(([serviceName, latestStatus]) => (
+								<div 
+									key={serviceName} 
+									className="w-5/6 mx-auto my-12 max-w-5xl"
+								>
+									<ServiceContainer
+										name={serviceName}
+										latest={latestStatus}
+										timeline={serviceTimeline[serviceName] || []}
+									/>
+								</div>
+							))
+						}
+					</div>
+				</main>
+				<footer id="footer">
+					<Footer />
+				</footer>
+			</>
 		)
 	}
 }

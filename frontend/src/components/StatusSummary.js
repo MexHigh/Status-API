@@ -10,7 +10,7 @@ export default function StatusSummary({ latest }) {
         latestStatus.status === "up" ? counter.ups++ : counter.downs++
     })
 
-    let bgColor = "bg-gray-100"
+    let bgColor = "bg-gray-200"
     let text = ""
     if (counter.downs === 0) {
         bgColor = "bg-green-400"
@@ -23,11 +23,8 @@ export default function StatusSummary({ latest }) {
         text = "Most services are unavailable"
     }
 
-    bgColor = "bg-green-400"
-    text = "All services operational"
-
     return (
-        <div className={`rounded-xl shadow-lg w-max mx-auto py-4 px-10 flex items-center space-x-4`}>
+        <div className={`rounded-xl shadow-lg w-max py-4 px-10 flex items-center space-x-4`}>
             <div className={`${bgColor} w-5 h-5 rounded-full`}>
                 <div className={`${bgColor} w-full h-full rounded-lg animate-ping`}></div>
             </div>
