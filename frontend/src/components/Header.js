@@ -8,9 +8,11 @@ export default function Header({ lastCheckTs }) {
 				<div className="w-20 mr-4">
 					<img src="https://cdn.leon.wtf/icon/logo-email-sig.png" alt="Header logo" />
 				</div>
-				<h1 className="text-xl">
-					Status API for <span className="font-bold">leon.wtf</span>
-				</h1>
+				<div>
+					<h1 className="text-xl">
+						Status API for <span className="font-bold">leon.wtf</span>
+					</h1>
+				</div>
 			</div>
 			{/* Right side */}
 			<div>

@@ -10,7 +10,7 @@ export default function StatusHoverMenu({ forDay, status, availability, downtime
 					<CurrentStatus status={status}/>
 					<p>at</p>
 					<h1 className="font-bold text-center">
-						{new Date(forDay).toLocaleDateString()}
+						{new Date(forDay).toLocaleDateString("de-DE")}
 					</h1>
 				</div>
 				{/* Second line (availability) */}
@@ -38,15 +38,15 @@ export default function StatusHoverMenu({ forDay, status, availability, downtime
 
 function Downtime({ from, to, reason }) {
 
-	const fromTime = new Date(from).toLocaleTimeString()
-	const toTime = new Date(to).toLocaleTimeString()
+	const fromTime = new Date(from).toLocaleTimeString("de-DE")
+	const toTime = new Date(to).toLocaleTimeString("de-DE")
 
 	return (
 		<div className="mt-2 whitespace-nowrap overflow-hidden">
 			<h1 className="italic">
 				{ fromTime === toTime ? <>{fromTime}</> : <>{fromTime} - {toTime}</> }
 			</h1>
-			<h2 className="text-gray-600">{reason}</h2>
+			<h2 className="text-gray-600">{reason || "Reason unknown"}</h2>
 		</div>
 	)
 }

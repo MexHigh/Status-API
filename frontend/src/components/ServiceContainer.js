@@ -1,7 +1,7 @@
 import React from "react"
-import CurrentStatus from "../components/CurrentStatus"
-import MiscEntries from "../components/MiscEntries"
-import StatusPill from "../components/StatusPill"
+import CurrentStatus from "./CurrentStatus"
+import MiscEntries from "./MiscEntries"
+import StatusPill from "./StatusPill"
 
 // ServiceContainer bundles the service name, StatusPill and
 // CurrentStatus components to create an availability timeline.
