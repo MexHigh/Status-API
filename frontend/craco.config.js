@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CspHtmlWebpackPlugin = require('csp-html-webpack-plugin')
 
-let myPlugins = []
+let plugins = []
 
 /**
  * Add the CSP Plugin only when creating production builds
@@ -24,6 +24,6 @@ module.exports = {
 		},
 	},
 	webpack: {
-		plugins: myPlugins
+		plugins: plugins
 	}
 }
