@@ -32,14 +32,15 @@ export default function StatusPill({ forDay, status, availability, downtimes }) 
 			<div className={`w-4 h-8 ${color} mx-1 rounded-xl`}></div>
 
 			{/* Hover Menu */}
-			{ hovering && 
+			<div className={`absolute top-10 z-50 ${hovering ? "visible opacity-95" : "invisible opacity-0"} transition-all duration-100`}>
 				<StatusHoverMenu
 					forDay={forDay}
 					status={status}
 					availability={availability}
-					downtimes={downtimes}
+					// Just take the first 30 downtimes, if there is more, than this may be a bug anyway
+					downtimes={downtimes.slice(0, 30)}
 				/>
-			}
+			</div>
 			
 		</div>
 

@@ -3,7 +3,7 @@ import CurrentStatus from "./CurrentStatus"
 
 export default function StatusHoverMenu({ forDay, status, availability, downtimes }) {
     return (
-		<div className="absolute top-10 w-80 px-4 py-2 bg-gray-100 rounded-lg shadow-xl z-50 opacity-95">
+		<div className="w-80 px-4 py-2 bg-gray-100 rounded-lg shadow-lg">
 			<div className="m-3">
 				{/* First line (status and date) */}
 				<div className="flex justify-evenly">
