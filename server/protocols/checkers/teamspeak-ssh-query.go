@@ -40,8 +40,12 @@ func (TeamspeakSSHQuery) Check(name string, c *structs.ServiceConfig) (structs.C
 	_, err := ssh.Dial("tcp", hostPort, sshConfig)
 	if e := err.Error(); strings.Contains(e, "connection refused") || strings.Contains(e, "no route to host") { // ssh endpoint not responding
 		res.Status = structs.Down
+		res.Reason = "Connection refused"
 	} else if strings.Contains(e, "unable to authenticate") { // authentication error, but reachable
 		res.Status = structs.Up
+	} else if strings.Contains(e, "ssh: handshake failed") {
+		res.Status = structs.Down
+		res.Reason = "SSH handshake failed"
 	} else if err != nil { // unknown error
 		res.Status = structs.Down
 		res.Reason = e
