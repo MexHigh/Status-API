@@ -46,6 +46,9 @@ func (TeamspeakSSHQuery) Check(name string, c *structs.ServiceConfig) (structs.C
 	} else if strings.Contains(e, "ssh: handshake failed") {
 		res.Status = structs.Down
 		res.Reason = "SSH handshake failed"
+	} else if strings.Contains(e, "connect: connection timed out") {
+		res.Status = structs.Down
+		res.Reason = "Connection timed out"
 	} else if err != nil { // unknown error
 		res.Status = structs.Down
 		res.Reason = e
