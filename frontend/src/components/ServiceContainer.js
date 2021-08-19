@@ -11,7 +11,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 	const widthRef = useRef()
 
 	useEffect(() => {
-		// calulate number of pills
+		// calulate number of pills on mount
 		calculateNumberOfPills()
 		// add event listener on mount
 		window.addEventListener("resize", calculateNumberOfPills)
@@ -23,9 +23,9 @@ export default function ServiceContainer({ name, latest, timeline }) {
 
 	const calculateNumberOfPills = () => {
 		if (widthRef) {
-			let tempNumOfPills = Math.round(widthRef.current.clientWidth / 35)
-			console.log("Rendering", tempNumOfPills, "pills for", name)
-			setNumOfPills(tempNumOfPills)
+			setNumOfPills(
+				Math.round(widthRef.current.clientWidth / 35)
+			)
 		} else {
 			console.error("widthRef is", widthRef)
 		}
@@ -33,26 +33,19 @@ export default function ServiceContainer({ name, latest, timeline }) {
 
 	const makePills = () => {
 		let pills = []
-		
-		let trimmedTimeline = timeline.slice(
-			timeline.length - (numOfPills > 30 ? 30 : numOfPills), 
-			timeline.length
-		)
-
-		trimmedTimeline.forEach((day, i) => {
+		for (let i = 0; i < numOfPills; i++) {
+			let status = timeline[i + (timeline.length - (numOfPills > 30 ? 30 : numOfPills))]
 			pills.push(
 				<StatusPill 
 					key={i + 30}
-					forDay={day.at}
-					status={day.status}
-					availability={day.availability}
-					downtimes={day.downtimes}
+					forDay={status.at}
+					status={status.status}
+					availability={status.availability}
+					downtimes={status.downtimes}
 				/>
 			)
-		})
-
-		return pills // should have a length of 30
-
+		}
+		return pills
 	}
 
 	return (
