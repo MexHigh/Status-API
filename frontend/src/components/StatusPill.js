@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { usePopperTooltip } from "react-popper-tooltip"
 import StatusHoverMenu from "./StatusHoverMenu"
 
@@ -10,9 +10,6 @@ export default function StatusPill({ forDay, status, availability, downtimes }) 
 		interactive: true,
 		delayHide: 50,
 		delayShow: 100,
-		onVisibleChange: visible => {
-			console.log(visible ? "visible": "hidden")
-		},
 	})
 
 	let color
@@ -33,11 +30,17 @@ export default function StatusPill({ forDay, status, availability, downtimes }) 
 	return (
 		<div>
 			{/* Status Pill */}
-			<div className={`w-4 h-8 ${color} mx-1 rounded-xl`} ref={setTriggerRef} />
+			<div
+				ref={setTriggerRef}
+				className={`w-4 h-8 ${color} mx-1 rounded-xl`} 
+			/>
 
 			{/* Hover Menu */}
-			{visible && (
-				<div ref={setTooltipRef} {...getTooltipProps()}>
+			{ visible && ( 
+				<div 
+					ref={setTooltipRef}
+					{...getTooltipProps()}
+				>
 					<StatusHoverMenu
 						forDay={forDay}
 						status={status}
