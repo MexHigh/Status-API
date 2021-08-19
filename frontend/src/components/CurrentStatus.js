@@ -18,7 +18,7 @@ export default function CurrentStatus({ status }) {
 	}
 
 	return (
-		<div className={`w-32 ${color} rounded-lg text-center`}>
+		<div className={`w-32 ${color} rounded-lg text-center select-none`}>
 			<p>{status}</p>
 		</div>
 	)

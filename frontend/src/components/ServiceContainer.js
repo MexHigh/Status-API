@@ -63,7 +63,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 				<CurrentStatus status={latest.status} />
 			</div>
 			{/* Second line */}
-			<div className="flex justify-between">
+			<div className="flex justify-between h-8">
 				{makePills()}
 			</div>
 			{/* Third line (optional) */}
