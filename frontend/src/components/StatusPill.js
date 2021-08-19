@@ -1,10 +1,17 @@
-import React, { useState } from "react"
+import React from "react"
+import { usePopperTooltip } from "react-popper-tooltip"
 import StatusHoverMenu from "./StatusHoverMenu"
 
 export default function StatusPill({ forDay, status, availability, downtimes }) {
 
-	const [ hovering, setHovering ] = useState(false)
-	
+	const { setTriggerRef, setTooltipRef, getTooltipProps, visible } = usePopperTooltip({
+		offset: [0, 12],
+		trigger: "hover",
+		interactive: true,
+		delayHide: 50,
+		delayShow: 100,
+	})
+
 	let color
 	switch (status) {
 		case "up":
@@ -21,27 +28,28 @@ export default function StatusPill({ forDay, status, availability, downtimes }) 
 	}
 
 	return (
-
-		<div 
-			onMouseEnter={ () => { setHovering(true) } }
-			onMouseLeave={ () => { setHovering(false) } }
-			className="relative flex flex-col items-center"
-		>
-
+		<div>
 			{/* Status Pill */}
-			<div className={`w-4 h-8 ${color} mx-1 rounded-xl`}></div>
+			<div
+				ref={setTriggerRef}
+				className={`w-4 h-8 ${color} mx-1 rounded-xl`} 
+			/>
 
 			{/* Hover Menu */}
-			<div className={`absolute top-10 z-50 ${hovering ? "visible opacity-95" : "invisible opacity-0"} transition-all duration-100`}>
-				<StatusHoverMenu
-					forDay={forDay}
-					status={status}
-					availability={availability}
-					// Just take the first 30 downtimes, if there is more, than this may be a bug anyway
-					downtimes={downtimes.slice(0, 30)}
-				/>
-			</div>
-			
+			{ visible && ( 
+				<div 
+					ref={setTooltipRef}
+					{...getTooltipProps()}
+				>
+					<StatusHoverMenu
+						forDay={forDay}
+						status={status}
+						availability={availability}
+						// Just take the first 30 downtimes, if there is more, than this may be a bug anyway
+						downtimes={downtimes && downtimes.slice(0, 30)}
+					/>
+				</div>
+			)}
 		</div>
 
 	)

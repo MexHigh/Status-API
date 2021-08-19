@@ -18,8 +18,10 @@ export default function CurrentStatus({ status }) {
 	}
 
 	return (
-		<div className={`w-32 ${color} rounded-lg text-center`}>
-			<p>{status}</p>
+		<div className={`w-20 md:w-32 ${color} rounded-lg text-center select-none`}>
+			{/*<div className="h-full w-full flex justify-center items-center">*/}
+				<p>{status}</p>
+			{/*</div>*/}
 		</div>
 	)
 	

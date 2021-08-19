@@ -48,7 +48,7 @@ export default function App() {
 
 		return (
 			<>
-				<header id="header" className="mx-auto max-w-5xl mb-10">
+				<header id="header" className="mx-auto max-w-5xl mb-8">
 					<Header lastCheckTs={latest.at} />
 				</header>
 				<main>
@@ -62,7 +62,7 @@ export default function App() {
 							Object.entries(latest.services).map(([serviceName, latestStatus]) => (
 								<div 
 									key={serviceName} 
-									className="w-5/6 mx-auto my-12 max-w-5xl"
+									className="w-11/12 md:w-5/6 mx-auto my-6 md:my-10 max-w-5xl"
 								>
 									<ServiceContainer
 										name={serviceName}

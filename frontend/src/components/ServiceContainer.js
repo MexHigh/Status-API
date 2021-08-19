@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useRef, useEffect } from "react"
 import CurrentStatus from "./CurrentStatus"
 import MiscEntries from "./MiscEntries"
 import StatusPill from "./StatusPill"
@@ -7,43 +7,53 @@ import StatusPill from "./StatusPill"
 // CurrentStatus components to create an availability timeline.
 export default function ServiceContainer({ name, latest, timeline }) {
 
-	const makePills = () => {
+	const [ numOfPills, setNumOfPills ] = useState()
+	const widthRef = useRef()
 
-		let pills = []
-
-		// count the timeline entries and add as many grey
-		// StatusPills so that there are 30 in total
-		for (let i = 30 - timeline.length; i > 0; i--) {
-			pills.push(
-				<StatusPill 
-					key={i} 
-				/>
-			)
+	useEffect(() => {
+		// calulate number of pills on mount
+		calculateNumberOfPills()
+		// add event listener on mount
+		window.addEventListener("resize", calculateNumberOfPills)
+		return () => { // remove event listener on unmount
+			window.removeEventListener("resize", calculateNumberOfPills)
 		}
+	// eslint-disable-next-line
+	}, [])
 
-		// add the actual status entry pills
-		timeline.forEach((day, i) => {
+	const calculateNumberOfPills = () => {
+		if (widthRef) {
+			setNumOfPills(
+				Math.round(widthRef.current.clientWidth / 35)
+			)
+		} else {
+			console.error("widthRef is", widthRef)
+		}
+	}
+
+	const makePills = () => {
+		let pills = []
+		for (let i = 0; i < numOfPills; i++) {
+			let status = timeline[i + (timeline.length - (numOfPills > 30 ? 30 : numOfPills))]
 			pills.push(
 				<StatusPill 
 					key={i + 30}
-					forDay={day.at}
-					status={day.status}
-					availability={day.availability}
-					downtimes={day.downtimes}
+					forDay={status.at}
+					status={status.status}
+					availability={status.availability}
+					downtimes={status.downtimes}
 				/>
 			)
-		})
-
-		return pills // should have a length of 30
-
+		}
+		return pills
 	}
 
 	return (
-		<div className="px-12 py-8 shadow-lg rounded-lg">
+		<div className="px-8 py-6 md:px-12 md:py-8 shadow-lg rounded-lg" ref={widthRef}>
 			{/* First line */}
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
 				<a 
-					className="font-bold text-xl ml-2" 
+					className="font-bold text-xl ml-2 truncate" 
 					href={latest.url} 
 					target="_blank" 
 					rel="noreferrer"
@@ -53,7 +63,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 				<CurrentStatus status={latest.status} />
 			</div>
 			{/* Second line */}
-			<div className="flex justify-between">
+			<div className="flex justify-between h-8">
 				{makePills()}
 			</div>
 			{/* Third line (optional) */}
