@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useRef, useEffect } from "react"
 import CurrentStatus from "./CurrentStatus"
 import MiscEntries from "./MiscEntries"
 import StatusPill from "./StatusPill"
@@ -7,22 +7,39 @@ import StatusPill from "./StatusPill"
 // CurrentStatus components to create an availability timeline.
 export default function ServiceContainer({ name, latest, timeline }) {
 
-	const makePills = () => {
+	const [ numOfPills, setNumOfPills ] = useState()
+	const widthRef = useRef()
 
-		let pills = []
-
-		// count the timeline entries and add as many grey
-		// StatusPills so that there are 30 in total
-		for (let i = 30 - timeline.length; i > 0; i--) {
-			pills.push(
-				<StatusPill 
-					key={i} 
-				/>
-			)
+	useEffect(() => {
+		// calulate number of pills
+		calculateNumberOfPills()
+		// add event listener on mount
+		window.addEventListener("resize", calculateNumberOfPills)
+		return () => { // remove event listener on unmount
+			window.removeEventListener("resize", calculateNumberOfPills)
 		}
+	// eslint-disable-next-line
+	}, [])
 
-		// add the actual status entry pills
-		timeline.forEach((day, i) => {
+	const calculateNumberOfPills = () => {
+		if (widthRef) {
+			let tempNumOfPills = Math.round(widthRef.current.clientWidth / 35)
+			console.log("Rendering", tempNumOfPills, "pills for", name)
+			setNumOfPills(tempNumOfPills)
+		} else {
+			console.error("widthRef is", widthRef)
+		}
+	}
+
+	const makePills = () => {
+		let pills = []
+		
+		let trimmedTimeline = timeline.slice(
+			timeline.length - (numOfPills > 30 ? 30 : numOfPills), 
+			timeline.length
+		)
+
+		trimmedTimeline.forEach((day, i) => {
 			pills.push(
 				<StatusPill 
 					key={i + 30}
@@ -39,7 +56,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 	}
 
 	return (
-		<div className="px-12 py-8 shadow-lg rounded-lg">
+		<div className="px-12 py-8 shadow-lg rounded-lg" ref={widthRef}>
 			{/* First line */}
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
 				<a 

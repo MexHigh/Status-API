@@ -38,7 +38,7 @@ export default function StatusPill({ forDay, status, availability, downtimes }) 
 					status={status}
 					availability={availability}
 					// Just take the first 30 downtimes, if there is more, than this may be a bug anyway
-					downtimes={downtimes.slice(0, 30)}
+					downtimes={downtimes && downtimes.slice(0, 30)}
 				/>
 			</div>
 			
