@@ -33,7 +33,7 @@ npm:publish:
   stage: push
   #only:
   #  - master
-  image: node
+  image: node:14
   script:
     - cd frontend/
     - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" > .npmrc
