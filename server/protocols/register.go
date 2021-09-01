@@ -16,6 +16,10 @@ type Checker interface {
 // loaded and before the checking functions are scheduled. This is optional
 // but advised as wrong configurations will be detected before invoking
 // any connections.
+//
+// The check if the "friendly_url" key is existent is done before the
+// ValidateConfig call and therefore must not be performed by the method
+// within this interface.
 type ValidatableChecker interface {
 	ValidateConfig(config *structs.ServiceConfig) error
 }
@@ -60,8 +64,15 @@ func GetAllCheckerNames() (names []string) {
 // ValidateConfig validates the parsed configuration
 // against the registered config checkers that implement the
 // ValidatableConfig interface
-func ValidateConfig(config *structs.Config) error {
-	for name, config := range config.Services {
+func ValidateConfig(c *structs.Config) error {
+
+	for name, config := range c.Services {
+
+		// check for existence of "friendly_url" key
+		if config.FriendlyURL == "" {
+			return fmt.Errorf("missing \"friendly_url\" key for service %s", name)
+		}
+
 		// check if the checker exists for this service config
 		if c := GetChecker(config.Protocol); c != nil {
 			// check if the corresponding checker implements ValidatableChecker
@@ -76,6 +87,9 @@ func ValidateConfig(config *structs.Config) error {
 		} else {
 			return fmt.Errorf("protocol %s not supported", config.Protocol)
 		}
+
 	}
+
 	return nil
+
 }
