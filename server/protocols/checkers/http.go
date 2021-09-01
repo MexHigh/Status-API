@@ -17,6 +17,10 @@ var errTooManyRedirects = errors.New("Too many redirects")
 // HTTP -
 type HTTP struct{}
 
+func (HTTP) ValidateConfig(config *structs.ServiceConfig) error {
+	return nil
+}
+
 // Check -
 func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, error) {
 

@@ -51,7 +51,6 @@ export default function StatusPill({ forDay, status, availability, downtimes }) 
 				</div>
 			)}
 		</div>
-
 	)
 
 }
