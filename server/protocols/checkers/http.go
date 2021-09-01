@@ -1,6 +1,7 @@
 package checkers
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
@@ -38,9 +39,17 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 		successCodes = s
 	} // else remain nil
 
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{},
+	}
+	if skipSSLVerify, ok := c.ProtocolConfig["skip_ssl_verify"].(bool); ok && skipSSLVerify {
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	// prepare client and request
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Transport: transport,
+		Timeout:   5 * time.Second,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if len(via) >= 10 {
 				return errTooManyRedirects
