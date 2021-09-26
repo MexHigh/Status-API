@@ -4,19 +4,39 @@ stages:
   - build
   - push
 
-before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
-build_image:
+docker:build:
   stage: build
   only:
     - master
+  before_script:  
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker build -t $CI_REGISTRY/$CI_PROJECT_PATH:v2 .
-
-push_image:
+  
+docker:push:
   stage: push
   only:
     - master
+  before_script:  
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker push $CI_REGISTRY/$CI_PROJECT_PATH:v2
+
+#npm:build:
+#  stage: build
+#  only:
+#    - master
+#  script:
+#    - cd frontend/ && npm build 
+
+npm:publish:
+  stage: push
+  #only:
+  #  - master
+  image: node:14
+  script:
+    - cd frontend/
+    #- echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" > .npmrc
+    - npm config set @leon:registry https://git.leon.wtf/api/v4/projects/${CI_PROJECT_ID}/packages/npm/
+    - npm config set -- "//git.leon.wtf/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken" "${CI_JOB_TOKEN}"
+    - npm publish
