@@ -13,7 +13,7 @@ import (
 	"status-api/structs"
 )
 
-var errTooManyRedirects = errors.New("Too many redirects")
+var errTooManyRedirects = errors.New("too many redirects")
 
 // HTTP -
 type HTTP struct{}

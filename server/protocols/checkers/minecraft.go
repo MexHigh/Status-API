@@ -40,15 +40,22 @@ func (Minecraft) Check(name string, c *structs.ServiceConfig) (structs.CheckResu
 	pong, err := mineping(hostPort)
 	if err != nil {
 		res.Status = structs.Down
-		if e := err.Error(); !(strings.Contains(e, "i/o timeout") || strings.Contains(e, "connection refused") || strings.Contains(e, "no route to host")) {
+		if e := err.Error(); strings.Contains(e, "i/o timeout") {
+			res.Reason = "I/O timeout"
+		} else if strings.Contains(e, "connection refused") {
+			res.Reason = "connection refused"
+		} else if strings.Contains(e, "no route to host") {
+			res.Reason = "no route to host"
+		} else {
 			res.Reason = e
 		}
-	} else {
-		res.Status = structs.Up
-		res.Misc = map[string]string{
-			"version":        pong.Version.Name,
-			"players_online": fmt.Sprintf("%d/%d", pong.Players.Online, pong.Players.Max),
-		}
+		return res, nil
+	}
+
+	res.Status = structs.Up
+	res.Misc = map[string]string{
+		"version":        pong.Version.Name,
+		"players_online": fmt.Sprintf("%d/%d", pong.Players.Online, pong.Players.Max),
 	}
 
 	return res, nil
