@@ -33,6 +33,13 @@ func main() {
 		panic(err)
 	}
 
+	log.Println("Validating config")
+	if err := protocols.ValidateConfig(c); err != nil {
+		panic(err)
+	} else {
+		log.Println("Config is valid, continuing")
+	}
+
 	log.Println("Connecting to SQLite3 database")
 	if err := database.InitializeSQLite3(
 		c.DBPath,

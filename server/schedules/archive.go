@@ -126,9 +126,9 @@ func runArchiving(config *structs.Config) {
 		availabilityFull := float64(uds.Ups) / float64(uds.Ups+uds.Downs)
 		availability := math.Round(availabilityFull*10000) / 10000 // rounds to four decimal places
 		var status structs.Status
-		if availability > 0.9 {
+		if availability > 0.97 {
 			status = structs.Up
-		} else if availability > 0.7 {
+		} else if availability > 0.8 {
 			status = structs.Problems
 		} else {
 			status = structs.Down
