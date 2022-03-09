@@ -46,6 +46,8 @@ func (Minecraft) Check(name string, c *structs.ServiceConfig) (structs.CheckResu
 			res.Reason = "connection refused"
 		} else if strings.Contains(e, "no route to host") {
 			res.Reason = "no route to host"
+		} else if strings.Contains(e, "No address associated with hostname") {
+			res.Reason = "no address for hostname"
 		} else {
 			res.Reason = e
 		}
