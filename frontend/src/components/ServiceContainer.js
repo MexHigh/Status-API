@@ -49,7 +49,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 	}
 
 	return (
-		<div className="px-8 py-6 md:px-12 md:py-8 shadow-lg rounded-lg" ref={widthRef}>
+		<div className="bg-white px-8 py-6 md:px-12 md:py-8 shadow-lg rounded-lg" ref={widthRef}>
 			{/* First line */}
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
 				<a 

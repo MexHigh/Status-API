@@ -2,6 +2,13 @@ import React from "react"
 import CurrentStatus from "./CurrentStatus"
 
 export default function StatusHoverMenu({ forDay, status, availability, downtimes }) {
+
+	let forDaydateTimeString = new Date(forDay).toLocaleDateString(navigator.language, {
+		year: "numeric", 
+		month: "2-digit", 
+		day: "2-digit"
+	})
+
     return (
 		<div className="w-80 px-4 py-2 bg-gray-100 rounded-lg shadow-lg">
 			<div className="m-3">
@@ -10,7 +17,7 @@ export default function StatusHoverMenu({ forDay, status, availability, downtime
 					<CurrentStatus status={status}/>
 					<p>at</p>
 					<h1 className="font-bold text-center">
-						{new Date(forDay).toLocaleDateString("de-DE")}
+						{ forDaydateTimeString }
 					</h1>
 				</div>
 				{/* Second line (availability) */}

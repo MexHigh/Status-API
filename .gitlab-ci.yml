@@ -31,12 +31,12 @@ docker:push:
 
 npm:publish:
   stage: push
-  #only:
-  #  - master
+  only:
+    - master
   image: node:14
   script:
     - cd frontend/
-    #- echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" > .npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" > .npmrc
     - npm config set @leon:registry https://git.leon.wtf/api/v4/projects/${CI_PROJECT_ID}/packages/npm/
     - npm config set -- "//git.leon.wtf/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken" "${CI_JOB_TOKEN}"
     - npm publish

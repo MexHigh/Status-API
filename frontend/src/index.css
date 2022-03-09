@@ -7,6 +7,10 @@ html, body, #root {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+body {
+	background-color: #FBFBFB;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
