@@ -44,7 +44,7 @@ func Start(host string, serveFrontend bool, frontendPath string) error {
 
 	msg := fmt.Sprintf("Server up at %s serving API", host)
 	if serveFrontend {
-		msg += " and Frontend"
+		msg += " and frontend"
 	}
 	log.Println(msg)
 

@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -29,19 +30,14 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 	var testURL string
 	if t, ok := c.ProtocolConfig["test_url"].(string); ok {
 		testURL = t
-	} else {
+	} else { // use friendy url if "test_url" is not specified
 		testURL = c.FriendlyURL
 	}
-
-	// success codes
-	var successCodes []interface{}
-	if s, ok := c.ProtocolConfig["success_codes"].([]interface{}); ok {
-		successCodes = s
-	} // else remain nil
 
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{},
 	}
+	// skip sslVerify check
 	if skipSSLVerify, ok := c.ProtocolConfig["skip_ssl_verify"].(bool); ok && skipSSLVerify {
 		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
@@ -70,7 +66,7 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 		)
 	}
 
-	// do it
+	// do the request
 	resp, err := client.Do(req)
 	if err != nil {
 		if tempErr, ok := err.(*url.Error); ok && tempErr.Timeout() { // if error is timeout
@@ -96,28 +92,52 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 	}
 	defer resp.Body.Close()
 
-	if successCodes != nil {
+	// check success code
+	if successCodes, ok := c.ProtocolConfig["success_codes"].([]interface{}); ok && len(successCodes) > 0 {
+		sawMatch := false
 		for _, sc := range successCodes {
 			if resp.StatusCode == int(sc.(float64)) {
-				return structs.CheckResult{
-					Status: structs.Up,
-					URL:    c.FriendlyURL,
-				}, nil
+				sawMatch = true
 			}
 		}
-	} else {
-		if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
+		if !sawMatch {
 			return structs.CheckResult{
-				Status: structs.Up,
+				Status: structs.Down,
 				URL:    c.FriendlyURL,
+				Reason: fmt.Sprintf("status code %d did not match conditions", resp.StatusCode),
+			}, nil
+		}
+	} else { // just check if the status code is between 200-299 if not specified
+		if !(resp.StatusCode >= 200 && resp.StatusCode <= 299) {
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: fmt.Sprintf("status code %d did not match conditions", resp.StatusCode),
 			}, nil
 		}
 	}
 
+	// check expected content
+	if expContent, ok := c.ProtocolConfig["exptected_content"].(string); ok {
+		// parse HTTP response to string
+		respBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return structs.CheckResult{}, err
+		}
+		respString := string(respBytes)
+
+		if !strings.Contains(respString, expContent) {
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "response did not contain expected string",
+			}, nil
+		} // else continue
+	}
+
 	return structs.CheckResult{
-		Status: structs.Down,
+		Status: structs.Up,
 		URL:    c.FriendlyURL,
-		Reason: fmt.Sprintf("status code %d does not match conditions", resp.StatusCode),
 	}, nil
 
 }
