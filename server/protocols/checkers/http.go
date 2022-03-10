@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 	"time"
 
@@ -117,8 +118,31 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 		}
 	}
 
+	// check expected headers
+	if expHeaders, ok := c.ProtocolConfig["expected_headers"].(map[string]interface{}); ok && len(expHeaders) > 0 {
+		for expName, expValue := range expHeaders {
+			// no need to type assert expValue, as it is passed
+			// to listContains, which takes an interface{}
+			found := false
+			for actualName, actualValues := range resp.Header {
+				valueContained, _ := listContains(actualValues, expValue)
+				if strings.EqualFold(actualName, expName) && valueContained {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return structs.CheckResult{
+					Status: structs.Down,
+					URL:    c.FriendlyURL,
+					Reason: fmt.Sprintf(`Expected header "%s" not found or wrong value`, expName),
+				}, nil
+			} // else continue with next header
+		} // if all were found, continue
+	}
+
 	// check expected content
-	if expContent, ok := c.ProtocolConfig["exptected_content"].(string); ok {
+	if expContent, ok := c.ProtocolConfig["expected_content"].(string); ok && expContent != "" {
 		// parse HTTP response to string
 		respBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -144,4 +168,18 @@ func (HTTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 
 func init() {
 	protocols.Register("http", HTTP{})
+}
+
+// listContains whether a `list` (slice or array) contains `target`
+// and returns its index (-1 if `target was not found`)
+func listContains(list interface{}, target interface{}) (bool, int) {
+	if reflect.TypeOf(list).Kind() == reflect.Slice || reflect.TypeOf(list).Kind() == reflect.Array {
+		listvalue := reflect.ValueOf(list)
+		for i := 0; i < listvalue.Len(); i++ {
+			if target == listvalue.Index(i).Interface() {
+				return true, i
+			}
+		}
+	}
+	return false, -1
 }
