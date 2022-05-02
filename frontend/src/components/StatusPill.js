@@ -2,7 +2,16 @@ import React from "react"
 import { usePopperTooltip } from "react-popper-tooltip"
 import StatusHoverMenu from "./StatusHoverMenu"
 
-export default function StatusPill({ forDay, status, availability, downtimes }) {
+/**
+ * Shows a small pill in the color of the services status. A hover menu shows details about
+ * the downtimes that have occured during the day.
+ * @param {string} forDay Timestamp of the day this pill shows the status for
+ * @param {string} status Will be passed to the <CurrentStatus /> component
+ * @param {float} availability The availabilty of the service in percent for that day
+ * @param {Array} downtimes Array of downtimes for that day taken from the timeline object
+ * @param {boolean} inactive Whether to hide the hover menu or not (useful, when there is no status data for that pill/day)
+ */
+export default function StatusPill({ forDay, status, availability, downtimes, inactive }) {
 
 	const { setTriggerRef, setTooltipRef, getTooltipProps, visible } = usePopperTooltip({
 		offset: [0, 12],
@@ -36,7 +45,7 @@ export default function StatusPill({ forDay, status, availability, downtimes }) 
 			/>
 
 			{/* Hover Menu */}
-			{ visible && ( 
+			{ (!inactive && visible) && ( 
 				<div 
 					ref={setTooltipRef}
 					{...getTooltipProps()}

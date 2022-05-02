@@ -35,15 +35,24 @@ export default function ServiceContainer({ name, latest, timeline }) {
 		let pills = []
 		for (let i = 0; i < numOfPills; i++) {
 			let status = timeline[i + (timeline.length - (numOfPills > 30 ? 30 : numOfPills))]
-			pills.push(
-				<StatusPill 
-					key={i + 30}
-					forDay={status.at}
-					status={status.status}
-					availability={status.availability}
-					downtimes={status.downtimes}
-				/>
-			)
+			if (status === undefined) {
+				pills.push(
+					<StatusPill 
+						key={i+30}
+						inactive={true} // do not show hover menu
+					/>
+				)
+			} else {
+				pills.push(
+					<StatusPill 
+						key={i + 30}
+						forDay={status.at}
+						status={status.status}
+						availability={status.availability}
+						downtimes={status.downtimes}
+					/>
+				)
+			}
 		}
 		return pills
 	}

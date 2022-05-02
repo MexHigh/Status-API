@@ -2,6 +2,8 @@
 
 For configuration options visit the repository wiki.
 
+The frontend was built using `node v15.14.0`.
+
 
 # Special thanks
 
