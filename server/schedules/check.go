@@ -79,6 +79,7 @@ func runChecks(config *structs.Config) {
 
 			resultWithName := structs.CheckResultWithNameAndTime{
 				Name:   name,
+				Time:   time.Now(),
 				Result: r,
 			}
 

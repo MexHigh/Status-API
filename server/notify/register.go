@@ -1,10 +1,12 @@
 package notify
 
+import "time"
+
 // Notifier defines an interface that can send messages to
 // report a service as up or down
 type Notifier interface {
-	NotifyUp(serviceName string, reason string)
-	NotifyDown(serviceName string, reason string)
+	NotifyDown(serviceName string, reportedDownAt time.Time, reason string)
+	NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration)
 }
 
 var notifiers = make(map[string]Notifier)

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"status-api/database"
+	_ "status-api/notify/notifiers" // enforce compilation of all notifiers
 	"status-api/protocols"
 	_ "status-api/protocols/checkers" // enforce compilation of all checkers
 	"status-api/schedules"
