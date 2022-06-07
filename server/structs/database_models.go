@@ -34,7 +34,7 @@ func (a CheckResults) Value() (driver.Value, error) {
 func (a *CheckResults) Scan(value interface{}) error {
 	bytes, ok := value.([]byte)
 	if !ok {
-		return errors.New("Error casting to byte slice")
+		return errors.New("error casting to byte slice")
 	}
 	if err := json.Unmarshal(bytes, a); err != nil {
 		return err
@@ -66,7 +66,7 @@ func (a ArchiveResults) Value() (driver.Value, error) {
 func (a *ArchiveResults) Scan(value interface{}) error {
 	bytes, ok := value.([]byte)
 	if !ok {
-		return errors.New("Error casting to byte slice")
+		return errors.New("error casting to byte slice")
 	}
 	if err := json.Unmarshal(bytes, a); err != nil {
 		return err

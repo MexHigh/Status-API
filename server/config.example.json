@@ -1,4 +1,7 @@
 {
+    "notifiers": {
+        "log": {}
+    },
     "services": {
         "leon.wtf Homepage": {
             "friendly_url": "https://leon.wtf",

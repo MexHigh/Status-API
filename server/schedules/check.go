@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"status-api/database"
+	"status-api/notify"
 	"status-api/protocols"
 	"status-api/structs"
 )
@@ -46,15 +47,8 @@ func StartCheckTriggerJob(config *structs.Config) {
 
 func runChecks(config *structs.Config) {
 
-	// ResultWithName is only used here as the channel
-	// type so that only one channel is necessary
-	type ResultWithName struct {
-		Name   string
-		Result structs.CheckResult
-	}
-
 	// buffered channel for test results
-	resultsChan := make(chan ResultWithName, len(config.Services))
+	resultsChan := make(chan structs.CheckResultWithNameAndTime, len(config.Services))
 
 	for name, config := range config.Services {
 		// Invoke goroutines for checking every service
@@ -83,10 +77,20 @@ func runChecks(config *structs.Config) {
 				}
 			}
 
-			// Write the result to the channel
-			resultsChan <- ResultWithName{
+			resultWithName := structs.CheckResultWithNameAndTime{
 				Name:   name,
+				Time:   time.Now(),
 				Result: r,
+			}
+
+			// Write the result to the channel
+			resultsChan <- resultWithName
+
+			// notify
+			if resultWithName.Result.Status == structs.Down {
+				notify.ReportDown(&resultWithName)
+			} else {
+				notify.ReportUp(&resultWithName)
 			}
 
 		}(name, config)
