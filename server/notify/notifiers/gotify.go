@@ -1,8 +1,11 @@
 package notifiers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"time"
 
 	"status-api/notify"
@@ -15,30 +18,92 @@ const (
 	upNotificationMsg     = "Reported at: %s (was down for %s)"
 )
 
-type Gotify struct{}
-
-func (Gotify) NotifyDown(serviceName string, reportedDownAt time.Time, reason string) {
-
-}
-
-func (Gotify) NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration) {
-
-}
-
 type gotifyConfig struct {
-	Key string `json:"key"`
+	Host           string `json:"host"`
+	ApplicationKey string `json:"application_key"`
 }
 
-func (Gotify) UnmarshalConfig(raw json.RawMessage) error {
+type Gotify struct {
+	config gotifyConfig
+}
+
+func (g *Gotify) gotifySend(title, message string) error {
+	// compose request body
+	reqBodyMap := map[string]interface{}{
+		"title":    title,
+		"message":  message,
+		"priority": 9,
+	}
+	reqBody, err := json.Marshal(reqBodyMap)
+	if err != nil {
+		return err
+	}
+
+	// client and request
+	client := http.DefaultClient
+	req, err := http.NewRequest("POST", g.config.Host+"/message", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("X-Gotify-Key", g.config.ApplicationKey)
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	// check some response data
+	if res.StatusCode != 200 {
+		return fmt.Errorf("got status %d instead of 200", res.StatusCode)
+	}
+	respBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	var respBodyMap map[string]interface{}
+	if err := json.Unmarshal(respBody, &respBodyMap); err != nil {
+		return err
+	}
+	if _, ok := respBodyMap["id"]; !ok {
+		return fmt.Errorf("expected field 'id' is not in response")
+	}
+
+	return nil
+}
+
+func (g *Gotify) NotifyDown(serviceName string, reportedDownAt time.Time, reason string) {
+	title := fmt.Sprintf(downNotificationTitle, serviceName)
+	msg := fmt.Sprintf(downNotificationMsg, reportedDownAt.Local().String(), reason)
+	if err := g.gotifySend(title, msg); err != nil {
+		panic(err) // TODO add option to return error
+	}
+}
+
+func (g *Gotify) NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration) {
+	title := fmt.Sprintf(upNotificationTitle, serviceName)
+	msg := fmt.Sprintf(upNotificationMsg, reportedDownAt.Local().String(), wasDownFor.String())
+	if err := g.gotifySend(title, msg); err != nil {
+		panic(err) // TODO add option to return error
+	}
+}
+
+func (g *Gotify) UnmarshalConfig(raw json.RawMessage) error {
 	var c gotifyConfig
 	if err := json.Unmarshal(raw, &c); err != nil {
 		return err
 	}
-	fmt.Println(c.Key)
+	g.config = c
 	return nil
 }
 
+// Interface guard (CAUTION: This interface guard does
+// not detect, if a required function is implemented for
+// the reciever type, which is invalid!)
+var _ notify.ConfigurableNotifier = (*Gotify)(nil)
+
 // Register notifier
 func init() {
-	notify.Register("gotify", Gotify{})
+	notify.Register("gotify", &Gotify{})
 }
