@@ -26,13 +26,13 @@ func ReportDown(result *structs.CheckResultWithNameAndTime) {
 
 // notifyDown calls all notifier's NotifyDown function
 func notifyDown(result *structs.CheckResultWithNameAndTime) {
-	for notifierName, notifier := range notifiers {
+	for notifierName, notifier := range activeNotifiers {
 		go func(nName string, n Notifier, r *structs.CheckResultWithNameAndTime) {
 			err := n.NotifyDown(r.Name, r.Time, r.Result.Reason)
 			if err != nil {
 				log.Printf("Error in notifier '%s': %s", nName, err.Error())
 			}
-		}(notifierName, notifier, result)
+		}(notifierName, *notifier, result)
 	}
 }
 
@@ -50,12 +50,12 @@ func ReportUp(result *structs.CheckResultWithNameAndTime) {
 
 // notifyUp calls all notifier's NotifyUp function
 func notifyUp(result *structs.CheckResultWithNameAndTime) {
-	for notifierName, notifier := range notifiers {
+	for notifierName, notifier := range activeNotifiers {
 		go func(nName string, n Notifier, r *structs.CheckResultWithNameAndTime) {
 			err := n.NotifyUp(r.Name, r.Time, time.Since(r.Time))
 			if err != nil {
 				log.Printf("Error in notifier '%s': %s", nName, err.Error())
 			}
-		}(notifierName, notifier, result)
+		}(notifierName, *notifier, result)
 	}
 }

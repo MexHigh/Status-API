@@ -2,6 +2,7 @@ package notify
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"status-api/structs"
 	"time"
@@ -32,7 +33,14 @@ type ConfigurableNotifier interface {
 	UnmarshalConfig(raw json.RawMessage) error
 }
 
-var notifiers = make(map[string]Notifier)
+var (
+	// notifiers holds all registed notifiers
+	notifiers = make(map[string]Notifier)
+
+	// activeNotifiers contains pointers to notifiers
+	// explicitly activated through the config file
+	activeNotifiers = make(map[string]*Notifier)
+)
 
 // Register registers a Notifier (or optionally
 // a ConfigurableNotifier).
@@ -42,6 +50,8 @@ func Register(name string, notifier Notifier) {
 
 // GetNotifier returns the registered notifier, or nil,
 // if it does not exist or has not been registered yet.
+//
+// This function also returns inactive notifiers.
 func GetNotifier(notifier string) Notifier {
 	if c, ok := notifiers[notifier]; ok {
 		return c
@@ -52,10 +62,19 @@ func GetNotifier(notifier string) Notifier {
 // GetAllNotifierNames returns a list of notifier names
 // after they have been registered. Otherwise the list
 // will be empty.
-func GetAllNotifierNames() (names []string) {
+//
+// Set activeOnly to true to only list checkers, that
+// were explicitly activated through the config file.
+func GetAllNotifierNames(activeOnly bool) (names []string) {
 	names = make([]string, 0, len(notifiers))
-	for key := range notifiers {
-		names = append(names, key)
+	if activeOnly {
+		for key := range activeNotifiers {
+			names = append(names, key)
+		}
+	} else {
+		for key := range notifiers {
+			names = append(names, key)
+		}
 	}
 	return
 }
@@ -69,8 +88,8 @@ func GetAllNotifierNames() (names []string) {
 // The following JSON path will be provided as raw JSON:
 // "notifiers > [name] > ."
 func ProvideConfig(c *structs.Config) error {
-	for key, notifier := range notifiers {
-		if cNotifier, ok := notifier.(ConfigurableNotifier); ok {
+	for key, notifier := range activeNotifiers {
+		if cNotifier, ok := (*notifier).(ConfigurableNotifier); ok {
 			config, ok := c.Notifiers[key]
 			if !ok {
 				log.Printf("Notifier '%s' did not recieve a configuration (not found in config file)", key)
@@ -80,6 +99,20 @@ func ProvideConfig(c *structs.Config) error {
 				return err
 			}
 			log.Printf("Notifier '%s' recieved a configuration", key)
+		}
+	}
+	return nil
+}
+
+// Activate takes any number of notifier names to activate them.
+// Returns an non-nil error if the function encounters a notifier
+// name, that has not been registered.
+func Activate(names ...string) error {
+	for _, name := range names {
+		if notifier, ok := notifiers[name]; ok {
+			activeNotifiers[name] = &notifier
+		} else {
+			return fmt.Errorf("couldn't activate unregistered notifier '%s'", name)
 		}
 	}
 	return nil
