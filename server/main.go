@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"status-api/database"
+	"status-api/notify"
 	_ "status-api/notify/notifiers" // enforce compilation of all notifiers
 	"status-api/protocols"
 	_ "status-api/protocols/checkers" // enforce compilation of all checkers
@@ -25,8 +26,11 @@ func main() {
 
 	flag.Parse()
 
-	names := "" + strings.Join(protocols.GetAllCheckerNames(), ", ")
+	names := strings.Join(protocols.GetAllCheckerNames(), ", ")
 	log.Println("Loaded protocol checkers:", names)
+
+	notifiers := strings.Join(notify.GetAllNotifierNames(), ", ")
+	log.Println("Loaded notifiers:", notifiers)
 
 	log.Println("Loading config from", *configPath)
 	c, err := structs.ParseConfig(*configPath)
@@ -39,6 +43,11 @@ func main() {
 		panic(err)
 	} else {
 		log.Println("Config is valid, continuing")
+	}
+
+	log.Println("Providing config to notifiers")
+	if err := notify.ProvideConfig(c); err != nil {
+		panic(err)
 	}
 
 	log.Println("Connecting to SQLite3 database")
