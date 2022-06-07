@@ -9,6 +9,9 @@ import (
 
 var servicesThatAreDown = make(map[string]*structs.CheckResultWithNameAndTime, 0)
 
+// ReportDown can be called every time a service was tested unreachable.
+// It checks itself if the service was reported down previously to not
+// send multiple notifications
 func ReportDown(result *structs.CheckResultWithNameAndTime) {
 	if _, ok := servicesThatAreDown[result.Name]; ok {
 		// means that the service is already down --> do nothing
@@ -33,6 +36,9 @@ func notifyDown(result *structs.CheckResultWithNameAndTime) {
 	}
 }
 
+// ReportUp can be called every time a service was tested reachable.
+// It checks itself if the service was reported up previously to not
+// send multiple notifications
 func ReportUp(result *structs.CheckResultWithNameAndTime) {
 	if service, ok := servicesThatAreDown[result.Name]; ok {
 		// means that the service was down before --> notify
