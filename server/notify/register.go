@@ -10,8 +10,8 @@ import (
 // Notifier defines an interface that can send messages to
 // report a service as up or down
 type Notifier interface {
-	NotifyDown(serviceName string, reportedDownAt time.Time, reason string)
-	NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration)
+	NotifyDown(serviceName string, reportedDownAt time.Time, reason string) error
+	NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration) error
 }
 
 type ConfigurableNotifier interface {

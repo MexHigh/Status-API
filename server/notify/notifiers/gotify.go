@@ -13,9 +13,9 @@ import (
 
 const (
 	downNotificationTitle = "Service '%s' is down!"
-	downNotificationMsg   = "Reported at: %s.\nReason: %s"
+	downNotificationMsg   = "Reported at: %s\nReason: %s"
 	upNotificationTitle   = "Service '%s' is up again!"
-	upNotificationMsg     = "Reported at: %s (was down for %s)"
+	upNotificationMsg     = "Reported at: %s\nWas down for: %s)"
 )
 
 type gotifyConfig struct {
@@ -23,6 +23,12 @@ type gotifyConfig struct {
 	ApplicationKey string `json:"application_key"`
 }
 
+// Gotify uses a Gotify server to send
+// notifications via WebSocket
+//
+// See https://github.com/gotify/server
+//
+// Gotify implements notify.ConfigurableNotifier
 type Gotify struct {
 	config gotifyConfig
 }
@@ -73,20 +79,22 @@ func (g *Gotify) gotifySend(title, message string) error {
 	return nil
 }
 
-func (g *Gotify) NotifyDown(serviceName string, reportedDownAt time.Time, reason string) {
+func (g *Gotify) NotifyDown(serviceName string, reportedDownAt time.Time, reason string) error {
 	title := fmt.Sprintf(downNotificationTitle, serviceName)
 	msg := fmt.Sprintf(downNotificationMsg, reportedDownAt.Local().String(), reason)
 	if err := g.gotifySend(title, msg); err != nil {
-		panic(err) // TODO add option to return error
+		return err
 	}
+	return nil
 }
 
-func (g *Gotify) NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration) {
+func (g *Gotify) NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration) error {
 	title := fmt.Sprintf(upNotificationTitle, serviceName)
 	msg := fmt.Sprintf(upNotificationMsg, reportedDownAt.Local().String(), wasDownFor.String())
 	if err := g.gotifySend(title, msg); err != nil {
-		panic(err) // TODO add option to return error
+		return err
 	}
+	return nil
 }
 
 func (g *Gotify) UnmarshalConfig(raw json.RawMessage) error {
