@@ -26,6 +26,14 @@ type CheckResult struct {
 	Misc   map[string]string `json:"misc,omitempty"`
 }
 
+// CheckResultWithName combines a CheckResult with
+// the service name and a timestamp for easier lookups
+type CheckResultWithNameAndTime struct {
+	Name   string
+	Time   time.Time
+	Result CheckResult
+}
+
 // CheckResults wraps multiple CheckResults structs
 // by service name combined with a timestamp
 type CheckResults struct {

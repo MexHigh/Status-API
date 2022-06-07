@@ -6,7 +6,7 @@ import (
 	"status-api/structs"
 )
 
-// Checker defines a struct that can perform protocol-specific checks
+// Checker defines an interface that can perform protocol-specific checks
 type Checker interface {
 	Check(name string, config *structs.ServiceConfig) (structs.CheckResult, error)
 }
