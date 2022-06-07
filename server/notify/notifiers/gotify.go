@@ -16,11 +16,15 @@ const (
 	downNotificationMsg   = "Reported at: %s\nReason: %s"
 	upNotificationTitle   = "Service '%s' is up again!"
 	upNotificationMsg     = "Reported at: %s\nWas down for: %s)"
+
+	defaultPriorty = 9
 )
 
 type gotifyConfig struct {
-	Host           string `json:"host"`
-	ApplicationKey string `json:"application_key"`
+	Host                 string `json:"host"`
+	ApplicationKey       string `json:"application_key"`
+	OverwritePriorityRaw *int   `json:"overwrite_priority,omitempty"`
+	Priority             int    `json:"-"`
 }
 
 // Gotify uses a Gotify server to send
@@ -38,7 +42,7 @@ func (g *Gotify) gotifySend(title, message string) error {
 	reqBodyMap := map[string]interface{}{
 		"title":    title,
 		"message":  message,
-		"priority": 9,
+		"priority": g.config.Priority,
 	}
 	reqBody, err := json.Marshal(reqBodyMap)
 	if err != nil {
@@ -101,6 +105,11 @@ func (g *Gotify) UnmarshalConfig(raw json.RawMessage) error {
 	var c gotifyConfig
 	if err := json.Unmarshal(raw, &c); err != nil {
 		return err
+	}
+	if c.OverwritePriorityRaw != nil {
+		c.Priority = *c.OverwritePriorityRaw
+	} else {
+		c.Priority = defaultPriorty
 	}
 	g.config = c
 	return nil
