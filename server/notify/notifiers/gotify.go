@@ -21,10 +21,15 @@ const (
 )
 
 type gotifyConfig struct {
-	Host                 string `json:"host"`
-	ApplicationKey       string `json:"application_key"`
-	OverwritePriorityRaw *int   `json:"overwrite_priority,omitempty"`
-	Priority             int    `json:"-"`
+	Host                string `json:"host"`
+	ApplicationKey      string `json:"application_key"`
+	PriorityRaw         *int   `json:"priority,omitempty"`
+	Priority            int    `json:"-"`
+	CustomPriorityTimes []struct {
+		From     string `json:"from"`
+		To       string `json:"to"`
+		Priority int    `json:"priority"`
+	} `json:"custom_priority_times"`
 }
 
 // Gotify uses a Gotify server to send
@@ -38,11 +43,21 @@ type Gotify struct {
 }
 
 func (g *Gotify) gotifySend(title, message string) error {
+	// check if within custom priority timeslot
+	prio, err := g.customPriority()
+	if err != nil {
+		return err
+	}
+	if prio == -1 {
+		// not within custom priority timeslot
+		prio = g.config.Priority // use "global" priority
+	}
+
 	// compose request body
 	reqBodyMap := map[string]interface{}{
 		"title":    title,
 		"message":  message,
-		"priority": g.config.Priority,
+		"priority": prio,
 	}
 	reqBody, err := json.Marshal(reqBodyMap)
 	if err != nil {
@@ -83,6 +98,33 @@ func (g *Gotify) gotifySend(title, message string) error {
 	return nil
 }
 
+// customPriority returns the priority if the current time is
+// within a configured custom time (custom_priority_times prop).
+// If not, it returns -1 and nil.
+//
+// If an error is returned, ommit the integer.
+func (g *Gotify) customPriority() (int, error) {
+	now := time.Now()
+	for _, timeObj := range g.config.CustomPriorityTimes {
+		from, err := time.ParseInLocation("15:04", timeObj.From, time.Local)
+		if err != nil {
+			return -1, err
+		}
+		from = from.AddDate(now.Year(), int(now.Month())-1, now.Day()-1)
+
+		to, err := time.ParseInLocation("15:04", timeObj.To, time.Local)
+		if err != nil {
+			return -1, err
+		}
+		to = to.AddDate(now.Year(), int(now.Month())-1, now.Day()-1)
+
+		if now.After(from) && now.Before(to) {
+			return timeObj.Priority, nil
+		}
+	}
+	return -1, nil
+}
+
 func (g *Gotify) NotifyDown(serviceName string, reportedDownAt time.Time, reason string) error {
 	title := fmt.Sprintf(downNotificationTitle, serviceName)
 	msg := fmt.Sprintf(downNotificationMsg, reportedDownAt.Local().String(), reason)
@@ -106,8 +148,8 @@ func (g *Gotify) UnmarshalConfig(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &c); err != nil {
 		return err
 	}
-	if c.OverwritePriorityRaw != nil {
-		c.Priority = *c.OverwritePriorityRaw
+	if c.PriorityRaw != nil {
+		c.Priority = *c.PriorityRaw
 	} else {
 		c.Priority = defaultPriorty
 	}
