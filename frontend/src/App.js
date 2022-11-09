@@ -4,6 +4,7 @@ import Header from "./components/Header"
 import Loading from "./components/Loading"
 import StatusSummary from "./components/StatusSummary"
 import ServiceContainer from "./components/ServiceContainer"
+import RSSPanel from "./components/RSSPanel"
 
 export default function App() {
 
@@ -54,6 +55,9 @@ export default function App() {
 				<main>
 					<div id="status-summary" className="mx-auto w-max">
 						<StatusSummary latest={latest} />
+					</div>
+					<div id="messages">
+						<RSSPanel />
 					</div>
 					<div id="services">
 						{

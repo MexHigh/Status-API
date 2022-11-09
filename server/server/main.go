@@ -25,6 +25,11 @@ func Start(host string, serveFrontend bool, frontendPath string) error {
 	apiRouter.HandleFunc("/ping", pingHandler).Methods("GET")
 	apiRouter.HandleFunc("/services/latest", latestHandler).Methods("GET")
 	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
+	apiRouter.HandleFunc("/messages", rssListMessagesHandler).Methods("GET")
+	apiRouter.HandleFunc("/message", rssCreateMessageHandler).Methods("POST")
+	apiRouter.HandleFunc("/message", rssDeleteMessageHandler).Methods("DELETE")
+	// RSS router
+	router.HandleFunc("/messages.atom", rssShowHandler).Methods("GET")
 	// frontend router
 	if serveFrontend {
 		if frontendPath == "" {

@@ -67,6 +67,7 @@ func main() {
 		c.DBPath,
 		&structs.CheckResultsModel{},
 		&structs.ArchiveResultsModel{},
+		&structs.AtomFeedItemModel{},
 	); err != nil {
 		panic(err)
 	}
