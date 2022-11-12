@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"status-api/database"
 	"status-api/structs"
@@ -14,7 +13,7 @@ func rssShowHandler(w http.ResponseWriter, r *http.Request) {
 	feed := &feeds.Feed{
 		Title:       "Status API messages for leon.wtf",
 		Link:        &feeds.Link{Href: "https://leon.wtf"},
-		Description: "Messages about incidents, maintenance, and others for the public services running on leon.wtf",
+		Description: "Messages about incidents, maintenance, and others for the services running on leon.wtf",
 		Author:      &feeds.Author{Name: "Leon Schmidt", Email: "admin@leon.wtf"},
 		Created:     time.Now(),
 	}
@@ -22,45 +21,47 @@ func rssShowHandler(w http.ResponseWriter, r *http.Request) {
 	var items []structs.AtomFeedItemModel
 	database.Con.Find(&items)
 
-	fmt.Println(items)
-
-	feed.Items = []*feeds.Item{
-		{
-			Title:       "Limiting Concurrency in Go",
-			Link:        &feeds.Link{Href: "http://jmoiron.net/blog/limiting-concurrency-in-go/"},
-			Description: "A discussion on controlled parallelism in golang",
-			Author:      &feeds.Author{Name: "Jason Moiron", Email: "jmoiron@jmoiron.net"},
-			Created:     time.Now(),
-		},
-		{
-			Title:       "Logic-less Template Redux",
-			Link:        &feeds.Link{Href: "http://jmoiron.net/blog/logicless-template-redux/"},
-			Description: "More thoughts on logicless templates",
-			Created:     time.Now(),
-		},
-		{
-			Title:       "Idiomatic Code Reuse in Go",
-			Link:        &feeds.Link{Href: "http://jmoiron.net/blog/idiomatic-code-reuse-in-go/"},
-			Description: "How to use interfaces <em>effectively</em>",
-			Created:     time.Now(),
-		},
+	for _, item := range items {
+		// workaround: feed.ToAtom() panics, if there
+		// is no feeds.Link element, so we will add
+		// an empty feeds.Link
+		if item.Data.Link == nil {
+			item.Data.Link = &feeds.Link{}
+		}
+		feed.Add((*feeds.Item)(&item.Data))
 	}
 
-	atom, err := feed.ToAtom()
+	atomFeedString, err := feed.ToAtom()
 	if err != nil {
 		panic(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(200)
-	w.Write([]byte(atom))
+	w.Write([]byte(atomFeedString))
 }
 
 func rssListMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	var items []structs.AtomFeedItemModel
 	database.Con.Find(&items)
-	// TODO das mal richtig machen
-	respondInstance(&w, items, 200)
+
+	// enrich structs.AtomFeedItem with the database ID (for referencing)
+	//
+	// we cannot use a map[uint]structs.AtomFeedItem here, as uints are not
+	// allowed as property in a JSON dict an are thus converted to string
+	type ItemWithDBID struct {
+		DbId                 uint `json:"Db_Id"`
+		structs.AtomFeedItem `json:",inline"`
+	}
+	itemsAsSlice := make([]ItemWithDBID, 0)
+	for _, item := range items {
+		itemsAsSlice = append(itemsAsSlice, ItemWithDBID{
+			item.ID,
+			item.Data,
+		})
+	}
+
+	respondInstance(&w, itemsAsSlice, 200)
 }
 
 func rssCreateMessageHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +74,12 @@ func rssCreateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	database.Con.Create(newFeedItem)
 
-	respondJSON(&w, []byte(`{"response": "created"}`), 200)
+	respondJSON(&w, []byte(`{"response": "created"}`), 201) // TODO if existent
+}
+
+func rssChangeMessageHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO document: can be used to mark message as done
+	respondJSON(&w, []byte(`{"response": "marked as done"}`), 200)
 }
 
 func rssDeleteMessageHandler(w http.ResponseWriter, r *http.Request) {
