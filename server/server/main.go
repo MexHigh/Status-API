@@ -27,8 +27,8 @@ func Start(host string, serveFrontend bool, frontendPath string) error {
 	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
 	apiRouter.HandleFunc("/messages", rssListMessagesHandler).Methods("GET")
 	apiRouter.HandleFunc("/message", rssCreateMessageHandler).Methods("POST")
-	apiRouter.HandleFunc("/message", rssChangeMessageHandler).Methods("PUT")
-	apiRouter.HandleFunc("/message", rssDeleteMessageHandler).Methods("DELETE")
+	apiRouter.HandleFunc("/message/{db_id}", rssChangeMessageHandler).Methods("PUT")
+	apiRouter.HandleFunc("/message/{db_id}", rssDeleteMessageHandler).Methods("DELETE")
 	// Atom router
 	router.HandleFunc("/messages.atom", rssShowHandler).Methods("GET")
 	// frontend router

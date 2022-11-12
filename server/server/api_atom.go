@@ -1,12 +1,16 @@
 package server
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"status-api/database"
 	"status-api/structs"
 	"time"
 
 	"github.com/gorilla/feeds"
+	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 func rssShowHandler(w http.ResponseWriter, r *http.Request) {
@@ -74,14 +78,44 @@ func rssCreateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	database.Con.Create(newFeedItem)
 
-	respondJSON(&w, []byte(`{"response": "created"}`), 201) // TODO if existent
+	respondPlainJSON(&w, []byte(`{"response": "created"}`), 201) // TODO if existent
 }
 
 func rssChangeMessageHandler(w http.ResponseWriter, r *http.Request) {
+	type respBody struct {
+		Done                 bool
+		structs.AtomFeedItem // allow all fields to be adjusted (except "Db_Id" of course)
+	}
+
 	// TODO document: can be used to mark message as done
-	respondJSON(&w, []byte(`{"response": "marked as done"}`), 200)
+	respondPlainJSON(&w, []byte(`{"response": "marked as done"}`), 200)
 }
 
 func rssDeleteMessageHandler(w http.ResponseWriter, r *http.Request) {
-	respondJSON(&w, []byte(`{"response": "deleted"}`), 200)
+	vars := mux.Vars(r)
+	id, ok := vars["db_id"]
+	if !ok {
+		respondError(&w, errors.New(`'db_id' is missing`), 400)
+		return
+	}
+
+	var messageToDelete structs.AtomFeedItemModel
+	// SELECT * FROM AtomFeedItemModels WHERE id = 'id'
+	res := database.Con.First(&messageToDelete, id)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			respondError(&w, errors.New("message not found"), 404)
+		} else {
+			respondError(&w, res.Error, 500)
+		}
+		return
+	}
+
+	database.Con.Delete(&messageToDelete)
+
+	respondInstance(
+		&w,
+		fmt.Sprintf("deleted message '%s'", messageToDelete.Data.Title),
+		200,
+	)
 }

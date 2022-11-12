@@ -8,7 +8,7 @@ import (
 )
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
-	respondJSON(&w, []byte(`{"response": "pong"}`), 200)
+	respondInstance(&w, "pong", 200)
 }
 
 func latestHandler(w http.ResponseWriter, r *http.Request) {
