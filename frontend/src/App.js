@@ -4,7 +4,7 @@ import Header from "./components/Header"
 import Loading from "./components/Loading"
 import StatusSummary from "./components/StatusSummary"
 import ServiceContainer from "./components/ServiceContainer"
-import RSSPanel from "./components/RSSPanel"
+import MessagePanel from "./components/MessagePanel"
 
 export default function App() {
 
@@ -57,7 +57,7 @@ export default function App() {
 						<StatusSummary latest={latest} />
 					</div>
 					<div id="messages">
-						<RSSPanel />
+						<MessagePanel />
 					</div>
 					<div id="services">
 						{

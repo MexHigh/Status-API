@@ -1,13 +1,10 @@
+import moment from "moment"
 import React from "react"
 import CurrentStatus from "./CurrentStatus"
 
 export default function StatusHoverMenu({ forDay, status, availability, downtimes }) {
 
-	let forDaydateTimeString = new Date(forDay).toLocaleDateString(navigator.language, {
-		year: "numeric", 
-		month: "2-digit", 
-		day: "2-digit"
-	})
+	let forDaydateTimeString = moment(forDay).format("LL")
 
     return (
 		<div className="w-80 px-4 py-2 bg-gray-100 rounded-lg shadow-lg">
@@ -15,7 +12,7 @@ export default function StatusHoverMenu({ forDay, status, availability, downtime
 				{/* First line (status and date) */}
 				<div className="flex justify-evenly">
 					<CurrentStatus status={status}/>
-					<p>at</p>
+					<p>on</p>
 					<h1 className="font-bold text-center">
 						{ forDaydateTimeString }
 					</h1>

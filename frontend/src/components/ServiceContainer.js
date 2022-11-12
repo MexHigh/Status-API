@@ -62,7 +62,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 			{/* First line */}
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
 				<a 
-					className="font-bold text-xl ml-2 truncate" 
+					className="text-xl ml-2 truncate" 
 					href={latest.url} 
 					target="_blank" 
 					rel="noreferrer"
