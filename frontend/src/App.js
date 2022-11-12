@@ -15,12 +15,12 @@ export default function App() {
 		fetch("/api/services/latest")
 			.then(r => r.json())
 			.then(r => {
-				setLatest(r)
+				setLatest(r.response)
 			})
 		fetch("/api/services/timeline")
 			.then(r => r.json())
 			.then(r => {
-				setTimeline(r)
+				setTimeline(r.response)
 			})
 	}, [])
 
