@@ -6,6 +6,15 @@ import StatusSummary from "./components/StatusSummary"
 import ServiceContainer from "./components/ServiceContainer"
 import MessagePanel from "./components/MessagePanel"
 
+// Workaround for CSP errors with FontAwesome:
+// 
+// Usually, FA applies CSS inline which violates the style-src
+// CSP policy. This workaround disables automatic CSS application
+// and imports the CSS file manually to be purged by webpack.
+import { config } from "@fortawesome/fontawesome-svg-core"
+import "../node_modules/@fortawesome/fontawesome-svg-core/styles.css"
+config.autoAddCss = false
+
 export default function App() {
 
 	const [latest, setLatest] = useState()
