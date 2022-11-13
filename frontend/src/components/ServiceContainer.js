@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react"
+import Card from "./Card"
 import CurrentStatus from "./CurrentStatus"
 import MiscEntries from "./MiscEntries"
 import StatusPill from "./StatusPill"
@@ -58,7 +59,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 	}
 
 	return (
-		<div className="bg-white px-8 py-6 md:px-12 md:py-8 shadow-md rounded-lg" ref={widthRef}>
+		<Card cRef={widthRef}>
 			{/* First line */}
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
 				<a 
@@ -77,6 +78,6 @@ export default function ServiceContainer({ name, latest, timeline }) {
 			</div>
 			{/* Third line (optional) */}
 			<MiscEntries misc={latest.misc} />
-		</div>
+		</Card>
 	)
 }

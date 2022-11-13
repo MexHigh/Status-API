@@ -4,7 +4,7 @@ import CurrentStatus from "./CurrentStatus"
 
 export default function StatusHoverMenu({ forDay, status, availability, downtimes }) {
 
-	let forDaydateTimeString = moment(forDay).format("LL")
+	const forDaydateTimeString = moment(forDay).format("ll")
 
     return (
 		<div className="w-80 px-4 py-2 bg-gray-100 rounded-lg shadow-md">

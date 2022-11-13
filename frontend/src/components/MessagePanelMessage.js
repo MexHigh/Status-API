@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import moment from "moment"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
+import Card from "./Card"
 
 export default function Message({ title, status, content, updated }) {
     const [ expanded, setExpanded ] = useState(false)
@@ -12,7 +13,7 @@ export default function Message({ title, status, content, updated }) {
     }
 
     return (
-        <div className="bg-white my-4 py-6 px-12 rounded-lg shadow-md">
+        <Card>
             <details open={expanded}>
                 <summary 
                     onClick={toggleExpanded} 
@@ -50,6 +51,6 @@ export default function Message({ title, status, content, updated }) {
                     </p>
                 </div>
             </details>
-        </div>
+        </Card>
     )
 }

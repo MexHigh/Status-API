@@ -23,13 +23,15 @@ export default function MessagePanel() {
 
     const reactEntries = entries?.map(item => {
         return (
-            <MessagePanelMessage 
-                key={item.id} 
-                title={item.title.value} 
-                status={item.summary?.value}
-                content={item.content?.value}
-                updated={item.updated}
-            />
+            <div className="my-4">
+                <MessagePanelMessage 
+                    key={item.id} 
+                    title={item.title.value} 
+                    status={item.summary?.value}
+                    content={item.content?.value}
+                    updated={item.updated}
+                />
+            </div>
         )
     })
 
@@ -49,7 +51,7 @@ export default function MessagePanel() {
                 </div>
                 <div>
                     { entries && entries.length > 0
-                        ? reactEntries 
+                        ? reactEntries
                         : <p
                             className="bg-white my-4 py-6 px-12 rounded-lg shadow-md"
                         >
