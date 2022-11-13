@@ -24,7 +24,7 @@ export default function StatusSummary({ latest }) {
     }
 
     return (
-        <div className={`bg-white rounded-xl shadow-lg w-max py-4 px-10 flex items-center space-x-4`}>
+        <div className={`bg-white rounded-xl shadow-md w-max py-4 px-10 flex items-center space-x-4`}>
             <div className={`${bgColor} w-5 h-5 rounded-full`}>
                 <div className={`${bgColor} w-full h-full rounded-lg animate-ping`}></div>
             </div>

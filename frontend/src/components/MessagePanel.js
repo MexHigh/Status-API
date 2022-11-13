@@ -51,7 +51,7 @@ export default function MessagePanel() {
                     { entries && entries.length > 0
                         ? reactEntries 
                         : <p
-                            className="bg-white text-center w-full shadow rounded-lg p-4 my-4"
+                            className="bg-white my-4 py-6 px-12 rounded-lg shadow-md"
                         >
                             No unresolved{ showResolved && " or resolved" } messages posted
                         </p>

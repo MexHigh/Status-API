@@ -3,7 +3,7 @@ import moment from "moment"
 
 export default function Message({ title, status, content, updated }) {
     return (
-        <div className="bg-white my-4 py-6 px-12 rounded-lg shadow-lg">
+        <div className="bg-white my-4 py-6 px-12 rounded-lg shadow-md">
             <details>
                 <summary className="cursor-pointer">
                     <span className="select-none text-lg">{title}</span>
