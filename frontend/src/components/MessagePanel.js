@@ -1,5 +1,7 @@
 import React, { useState } from "react"
 import { useAtomFeed } from "@au5ton/use-atom-feed"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRss } from '@fortawesome/free-solid-svg-icons'
 import MessagePanelMessage from "./MessagePanelMessage"
 import Card from "./Card"
 
@@ -39,12 +41,15 @@ export default function MessagePanel() {
     return (
         <>
             <div className="mx-auto max-w-5xl my-12 py-4">
-                <div className="flex gap-4 items-baseline">
+                <div className="flex gap-4 items-baseline ml-2">
                     <p className="text-xl">
                         Messages
                     </p>
+                    <a href="/messages.atom" target="_blank">
+                        <FontAwesomeIcon icon={faRss} />
+                    </a>
                     <button 
-                        className="text-sm text-gray-400 focus:outline-none hover:text-green-300"
+                        className="text-sm text-gray-400 focus:outline-none select-none hover:text-green-300"
                         onClick={toggleShowResolved}
                     >
                         { showResolved ? "hide resolved" : "show resolved" }
