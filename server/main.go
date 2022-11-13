@@ -81,6 +81,7 @@ func main() {
 		c.Host,
 		!c.NoFrontend,
 		c.FrontendPath,
+		c.AllowedAPIKeys,
 	); err != nil {
 		panic(err)
 	}
