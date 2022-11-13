@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import moment from "moment"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faTriangleExclamation, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import Card from "./Card"
 
 export default function Message({ title, status, content, updated }) {
@@ -17,25 +17,36 @@ export default function Message({ title, status, content, updated }) {
             <details open={expanded}>
                 <summary 
                     onClick={toggleExpanded} 
-                    className="cursor-pointer"
+                    className="cursor-pointer flex justify-between items-baseline"
                 >
-                    <span className="mx-2">
-                        { status === "Status: RESOLVED"
-                            ? <FontAwesomeIcon 
-                                icon={faCheck} 
-                                className="text-green-400"
-                                fixedWidth
+                    <span>
+                        <span>
+                            <FontAwesomeIcon
+                                icon={faAngleDown}
+                                className="text-gray-300"
+                                rotation={ expanded ? 80 : 270}
                             />
-                            : <FontAwesomeIcon 
-                                icon={faTriangleExclamation} 
-                                className="text-red-400"
-                                fixedWidth
-                            />
-                        }
+                        </span>
+                        <span className="mx-2">
+                            { status === "Status: RESOLVED"
+                                ? <FontAwesomeIcon 
+                                    icon={faCheck} 
+                                    className="text-green-400"
+                                    fixedWidth
+                                />
+                                : <FontAwesomeIcon 
+                                    icon={faTriangleExclamation} 
+                                    className="text-red-400"
+                                    fixedWidth
+                                />
+                            }
+                        </span>
+                        <span className="select-none text-lg">
+                            {title}
+                        </span>
                     </span>
-                    <span className="select-none text-lg">{title}</span>
                     { !expanded &&
-                        <span className="text-gray-400 float-right">
+                        <span className="text-gray-400 hidden md:block flex-none">
                             {moment(updated).fromNow()}
                         </span>
                     }

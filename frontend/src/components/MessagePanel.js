@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useAtomFeed } from "@au5ton/use-atom-feed"
 import MessagePanelMessage from "./MessagePanelMessage"
+import Card from "./Card"
 
 export default function MessagePanel() {
     const { data } = useAtomFeed("/messages.atom")
@@ -23,7 +24,7 @@ export default function MessagePanel() {
 
     const reactEntries = entries?.map(item => {
         return (
-            <div className="my-4">
+            <div className="mx-auto max-w-5xl my-4">
                 <MessagePanelMessage 
                     key={item.id} 
                     title={item.title.value} 
@@ -37,7 +38,7 @@ export default function MessagePanel() {
 
     return (
         <>
-            <div className="mx-auto w-11/12 md:w-5/6 max-w-5xl my-12 py-4">
+            <div className="mx-auto max-w-5xl my-12 py-4">
                 <div className="flex gap-4 items-baseline">
                     <p className="text-xl">
                         Messages
@@ -52,11 +53,11 @@ export default function MessagePanel() {
                 <div>
                     { entries && entries.length > 0
                         ? reactEntries
-                        : <p
-                            className="bg-white my-4 py-6 px-12 rounded-lg shadow-md"
-                        >
-                            No unresolved{ showResolved && " or resolved" } messages posted
-                        </p>
+                        : <div className="mx-auto max-w-5xl my-4">
+                            <Card>
+                                No unresolved{ showResolved && " or resolved" } messages posted
+                            </Card>
+                        </div>
                     }
                 </div>
             </div>
