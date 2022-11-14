@@ -4,6 +4,16 @@ import Header from "./components/Header"
 import Loading from "./components/Loading"
 import StatusSummary from "./components/StatusSummary"
 import ServiceContainer from "./components/ServiceContainer"
+import MessagePanel from "./components/MessagePanel"
+
+// Workaround for CSP errors with FontAwesome:
+// 
+// Usually, FA applies CSS inline which violates the style-src
+// CSP policy. This workaround disables automatic CSS application
+// and imports the CSS file manually to be purged by webpack.
+import { config } from "@fortawesome/fontawesome-svg-core"
+import "../node_modules/@fortawesome/fontawesome-svg-core/styles.css"
+config.autoAddCss = false
 
 export default function App() {
 
@@ -14,12 +24,12 @@ export default function App() {
 		fetch("/api/services/latest")
 			.then(r => r.json())
 			.then(r => {
-				setLatest(r)
+				setLatest(r.response)
 			})
 		fetch("/api/services/timeline")
 			.then(r => r.json())
 			.then(r => {
-				setTimeline(r)
+				setTimeline(r.response)
 			})
 	}, [])
 
@@ -51,9 +61,12 @@ export default function App() {
 				<header id="header" className="mx-auto max-w-5xl mb-8">
 					<Header lastCheckTs={latest.at} />
 				</header>
-				<main>
+				<main className="w-11/12 md:w-5/6 mx-auto">
 					<div id="status-summary" className="mx-auto w-max">
 						<StatusSummary latest={latest} />
+					</div>
+					<div id="messages">
+						<MessagePanel />
 					</div>
 					<div id="services">
 						{
@@ -62,7 +75,7 @@ export default function App() {
 							Object.entries(latest.services).map(([serviceName, latestStatus]) => (
 								<div 
 									key={serviceName} 
-									className="w-11/12 md:w-5/6 mx-auto my-6 md:my-10 max-w-5xl"
+									className="mx-auto max-w-5xl my-8"
 								>
 									<ServiceContainer
 										name={serviceName}

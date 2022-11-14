@@ -5,6 +5,8 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+
+	"github.com/gorilla/feeds"
 )
 
 // This file defines an own model to be used with gorm
@@ -77,3 +79,37 @@ func (a *ArchiveResults) Scan(value interface{}) error {
 // Interface guards for ResultMap
 var _ driver.Valuer = (*ArchiveResults)(nil)
 var _ sql.Scanner = (*ArchiveResults)(nil)
+
+// TODO
+type AtomFeedItem feeds.Item
+
+// TODO
+type AtomFeedItemModel struct {
+	Model
+	Data AtomFeedItem
+}
+
+// Value implements the driver.Valuer interface for TODO
+func (a AtomFeedItem) Value() (driver.Value, error) {
+	bytes, err := json.Marshal(&a)
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
+}
+
+// Scan implements the sql.Scanner interface for TODO
+func (a *AtomFeedItem) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("error casting to byte slice")
+	}
+	if err := json.Unmarshal(bytes, a); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Interface guards for ResultMap
+var _ driver.Valuer = (*AtomFeedItem)(nil)
+var _ sql.Scanner = (*AtomFeedItem)(nil)
