@@ -1,10 +1,13 @@
 package checkers
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
+	"net"
 	"net/smtp"
 	"strings"
+	"time"
 
 	"status-api/protocols"
 	"status-api/structs"
@@ -21,12 +24,27 @@ func (SMTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 	if hp, ok := c.ProtocolConfig["server_address"].(string); ok {
 		hostPort = hp
 	} else {
-		// TODO check for port if required by Dial
 		hostPort = c.FriendlyURL
+		// append default port if not specified
+		hostPortSplit := strings.Split(hostPort, ":")
+		if len(hostPortSplit) == 1 || hostPortSplit[1] == "" {
+			hostPort += ":587"
+		}
 	}
 
-	smtpClient, err := smtp.Dial(hostPort)
+	// create the connection and smtp client
+	conn, err := net.DialTimeout("tcp", hostPort, 5*time.Second)
 	if err != nil {
+		return structs.CheckResult{
+			Status: structs.Down,
+			URL:    c.FriendlyURL,
+			Reason: err.Error(),
+		}, nil
+	}
+	defer conn.Close()
+	smtpClient, err := smtp.NewClient(conn, c.FriendlyURL)
+	if err != nil {
+		fmt.Println("Penis")
 		return structs.CheckResult{
 			Status: structs.Down,
 			URL:    c.FriendlyURL,
@@ -35,9 +53,7 @@ func (SMTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 	}
 	defer smtpClient.Close()
 
-	// DEBUG
-	fmt.Printf("Starting noop")
-
+	// execute a NOOP operation to check if the server is responding
 	if err = smtpClient.Noop(); err != nil {
 		return structs.CheckResult{
 			Status: structs.Down,
@@ -46,13 +62,42 @@ func (SMTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 		}, nil
 	}
 
-	// DEBUG
-	fmt.Printf("noop end")
+	// upgrade with StartTLS if wanted
+	if useStartTLS, ok := c.ProtocolConfig["use_starttls"].(bool); ok && useStartTLS {
+		// check if STARTTLS extension is supported
+		if supported, _ := smtpClient.Extension("STARTTLS"); !supported {
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "STARTTLS extension not supported",
+			}, nil
+		}
+
+		// upgrade
+		if err := smtpClient.StartTLS(&tls.Config{
+			ServerName: c.FriendlyURL,
+		}); err != nil {
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "StartTLS error: " + err.Error(),
+			}, nil
+		}
+	}
 
 	// check if PlainAuth works if specified
 	if plainAuth, ok := c.ProtocolConfig["plain_auth"].(map[string]interface{}); ok {
-		var identity, username, password, host string
+		// check if AUTH extension is supported
+		if supported, _ := smtpClient.Extension("AUTH"); !supported {
+			return structs.CheckResult{
+				Status: structs.Down,
+				URL:    c.FriendlyURL,
+				Reason: "AUTH extension not supported",
+			}, nil
+		}
 
+		// provision value from config
+		var identity, username, password, host string
 		if tempIdentity, ok := plainAuth["identity"].(string); ok {
 			identity = tempIdentity
 		} // else identity is empty string, which is expected
@@ -73,11 +118,7 @@ func (SMTP) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, e
 			host = hostOnly
 		}
 
-		// DEBUG
-		fmt.Printf("Using:\n%s\n%s\n%s\n%s\n",
-			identity, username, password, host,
-		)
-
+		// do the authentication
 		auth := smtp.PlainAuth(identity, username, password, host)
 		if err := smtpClient.Auth(auth); err != nil {
 			return structs.CheckResult{
