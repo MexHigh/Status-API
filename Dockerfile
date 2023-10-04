@@ -1,5 +1,5 @@
 # Build Go backend
-FROM golang:1.16 AS go-builder
+FROM golang:1.20 AS go-builder
 WORKDIR /go/src/app
 COPY server/ .
 RUN go get -d -v ./...
@@ -7,7 +7,7 @@ RUN CGO_ENABLED=1 GOOS=linux go install -a -ldflags '-linkmode external -extldfl
 
 
 # Transpile React frontend to static files
-FROM node:15 AS react-builder
+FROM node:16 AS react-builder
 WORKDIR /tmp
 COPY frontend/ .
 RUN npm install

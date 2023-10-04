@@ -2,7 +2,9 @@
 
 For configuration options visit the repository wiki.
 
-The frontend was built using `node v15.14.0`.
+The frontend was built using `node v16.20.2`.
+
+The server (backend) was built using `go 1.20`.
 
 
 # Special thanks

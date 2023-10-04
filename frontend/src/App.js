@@ -20,7 +20,7 @@ export default function App() {
 	const [latest, setLatest] = useState()
 	const [timeline, setTimeline] = useState()
 
-	useEffect(() => {
+	const fetchApi = () => {
 		fetch("/api/services/latest")
 			.then(r => r.json())
 			.then(r => {
@@ -31,6 +31,14 @@ export default function App() {
 			.then(r => {
 				setTimeline(r.response)
 			})
+	}
+
+	useEffect(() => {
+		fetchApi()
+		const interval = setInterval(() => {
+			fetchApi()
+		}, 30 * 1000 /* seconds */)
+		return () => clearInterval(interval)
 	}, [])
 
 	if (!latest || !timeline) {
