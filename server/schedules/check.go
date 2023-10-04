@@ -16,7 +16,6 @@ const checkIntervalDefault = 120 // two minutes
 // StartCheckTriggerJob starts the goroutine
 // to trigger regular checks
 func StartCheckTriggerJob(config *structs.Config) {
-
 	// defer initial check to let the API server start
 	time.Sleep(time.Duration(5) * time.Second)
 
@@ -42,11 +41,9 @@ func StartCheckTriggerJob(config *structs.Config) {
 	for {
 		log.Printf("Did checks (took %d ms)", (<-ran).Milliseconds())
 	}
-
 }
 
 func runChecks(config *structs.Config) {
-
 	// buffered channel for test results
 	resultsChan := make(chan structs.CheckResultWithNameAndTime, len(config.Services))
 
@@ -113,5 +110,4 @@ func runChecks(config *structs.Config) {
 		Data: results,
 	}
 	database.Con.Create(model)
-
 }

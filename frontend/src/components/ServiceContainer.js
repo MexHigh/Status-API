@@ -64,7 +64,7 @@ export default function ServiceContainer({ name, latest, timeline }) {
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
 				<a 
 					className="text-xl ml-2 truncate" 
-					href={latest.url} 
+					href={latest.url.startsWith("http://") || latest.url.startsWith("https://") || latest.url.startsWith("ts3server://") ? latest.url : undefined} 
 					target="_blank" 
 					rel="noreferrer"
 				>

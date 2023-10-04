@@ -21,6 +21,7 @@ type Checker interface {
 // ValidateConfig call and therefore must not be performed by the method
 // within this interface.
 type ValidatableChecker interface {
+	Checker
 	ValidateConfig(config *structs.ServiceConfig) error
 }
 
@@ -65,9 +66,7 @@ func GetAllCheckerNames() (names []string) {
 // against the registered config checkers that implement the
 // ValidatableConfig interface
 func ValidateConfig(c *structs.Config) error {
-
 	for name, config := range c.Services {
-
 		// check for existence of "friendly_url" key
 		if config.FriendlyURL == "" {
 			return fmt.Errorf("missing \"friendly_url\" key for service %s", name)
@@ -87,9 +86,7 @@ func ValidateConfig(c *structs.Config) error {
 		} else {
 			return fmt.Errorf("protocol %s not supported", config.Protocol)
 		}
-
 	}
 
 	return nil
-
 }
