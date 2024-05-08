@@ -3,6 +3,7 @@ module status-api
 go 1.20
 
 require (
+	github.com/Tnze/go-mc v1.20.2
 	github.com/go-co-op/gocron v0.7.1
 	github.com/gorilla/feeds v1.1.1
 	github.com/gorilla/mux v1.8.0
@@ -12,6 +13,7 @@ require (
 )
 
 require (
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/kr/pretty v0.3.1 // indirect

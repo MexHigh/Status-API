@@ -50,7 +50,3 @@ The frontend was built with `React 17.0.1` and `craco 6.1.1` using `node v16.20.
 
 The server (API backend) was built using `go 1.20`.
 
-
-## Special thanks
-
-... goes to [Andrew Tian](https://github.com/andrewtian) and [Syfaro](https://github.com/Syfaro) for their [minepong tool](https://github.com/Syfaro/minepong) used in the [Minecraft Protocol Checker](https://git.leon.wtf/leon/status-api/-/wikis/Protocol-Modules/Minecraft) in this project.
