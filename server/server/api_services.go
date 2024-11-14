@@ -7,15 +7,11 @@ import (
 	"status-api/structs"
 )
 
-func pingHandler(w http.ResponseWriter, r *http.Request) {
-	respondInstance(&w, "pong", 200)
-}
-
 func latestHandler(w http.ResponseWriter, r *http.Request) {
 	st := &structs.CheckResultsModel{}
 	database.Con.Last(st)
 
-	respondInstance(&w, st.Data, 200)
+	respondData(&w, st.Data, 200)
 }
 
 func timelineHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,5 +26,5 @@ func timelineHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	respondInstance(&w, &tl, 200)
+	respondData(&w, &tl, 200)
 }

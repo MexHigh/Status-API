@@ -79,8 +79,10 @@ func main() {
 	log.Println("Starting server")
 	if err := server.Start(
 		c.Host,
-		!c.NoFrontend,
 		c.FrontendPath,
+		c.DashboardTitle,
+		c.DashboardLogoPath,
+		!c.NoFrontend,
 		c.AllowedAPIKeys,
 	); err != nil {
 		panic(err)

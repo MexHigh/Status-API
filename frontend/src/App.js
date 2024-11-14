@@ -16,8 +16,31 @@ import "../node_modules/@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
 
 export default function App() {
+	const [title, setTitle] = useState()
+	const [logoURL, setLogoURL] = useState()
 	const [latest, setLatest] = useState()
 	const [timeline, setTimeline] = useState()
+
+	const getTitleAndLogo = () => {
+		fetch("/api/dashboard/title")
+			.then(r => r.json())
+			.then(r => {
+				setTitle(r.response)
+			})
+		fetch("/api/dashboard/logo")
+			.then(r => r.blob())
+			.then(r => {
+				let url = URL.createObjectURL(r)
+				// Preload an invisible image to prevent flickering.
+				// Instead, let the image preload and set the state afterwards
+				// (which triggers the conditional re-render of the main page).
+				let img = new Image()
+				img.src = url
+				img.onload = () => {
+					setLogoURL(url)
+				}
+			})
+	}
 
 	const fetchApi = () => {
 		fetch("/api/services/latest")
@@ -33,6 +56,7 @@ export default function App() {
 	}
 
 	useEffect(() => {
+		getTitleAndLogo()
 		fetchApi()
 		const interval = setInterval(() => {
 			fetchApi()
@@ -40,7 +64,7 @@ export default function App() {
 		return () => clearInterval(interval)
 	}, [])
 
-	if (!latest || !timeline) {
+	if (!title || !logoURL || !latest || !timeline) {
 		return <Loading />
 	} else {
 		// restructure the response from /api/services/timeline
@@ -66,7 +90,11 @@ export default function App() {
 		return (
 			<>
 				<header id="header" className="mx-auto max-w-5xl mb-8">
-					<Header lastCheckTs={latest.at} />
+					<Header 
+						title={title}
+						logoURL={logoURL}
+						lastCheckTs={latest.at}
+					/>
 				</header>
 				<main className="w-11/12 md:w-5/6 mx-auto">
 					<div id="status-summary" className="mx-auto w-max">

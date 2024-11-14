@@ -25,8 +25,9 @@ COPY --from=go-builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=go-builder /go/bin/status-api /status-api
 # Copy static frontend files
 COPY --from=react-builder /tmp/build /frontend/build
-# Copy example config
+# Copy example config and default logo
 COPY server/config.example.json /config.json
+COPY server/logo.png /logo.png
 
 #VOLUME /config.json
 #VOLUME /db.sqlite

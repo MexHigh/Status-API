@@ -5,7 +5,9 @@ services:
     ports:
       - 3002:3002
     volumes:
-      - ./config.json:/config.json:ro
       - ./db.sqlite:/db.sqlite
+      - ./config.json:/config.json:ro
+      # Uncomment next line to provide your own logo
+      #- ./logo.png:/logo.png:ro
     environment:
       TZ: Europe/Berlin

@@ -94,7 +94,7 @@ func rssListMessagesHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	respondInstance(&w, itemsAsSlice, 200)
+	respondData(&w, itemsAsSlice, 200)
 }
 
 func rssCreateMessageHandler(w http.ResponseWriter, r *http.Request) {
@@ -139,7 +139,7 @@ func rssCreateMessageHandler(w http.ResponseWriter, r *http.Request) {
 	// update feedCreatedUpdated time
 	feedCreatedUpdated = time.Now()
 
-	respondInstance(&w, fmt.Sprintf("message created with ID '%d'", newFeedItem.ID), 201)
+	respondData(&w, fmt.Sprintf("message created with ID '%d'", newFeedItem.ID), 201)
 }
 
 func rssChangeMessageHandler(w http.ResponseWriter, r *http.Request) {
@@ -204,7 +204,7 @@ func rssChangeMessageHandler(w http.ResponseWriter, r *http.Request) {
 	// update feedCreatedUpdated time
 	feedCreatedUpdated = time.Now()
 
-	respondInstance(
+	respondData(
 		&w,
 		fmt.Sprintf("successfully changed the following attributes for message with ID '%d': %v",
 			messageToChange.ID,
@@ -240,7 +240,7 @@ func rssDeleteMessageHandler(w http.ResponseWriter, r *http.Request) {
 	// update feedCreatedUpdated time
 	feedCreatedUpdated = time.Now()
 
-	respondInstance(
+	respondData(
 		&w,
 		fmt.Sprintf("deleted message '%s'",
 			messageToDelete.Data.Title,

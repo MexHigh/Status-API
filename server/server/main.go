@@ -19,8 +19,7 @@ func init() {
 }
 
 // Start starts the API and the Frontend server
-func Start(host string, serveFrontend bool, frontendPath string, allowedAPIKeys []string) error {
-
+func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bool, allowedAPIKeys []string) error {
 	if host == "" {
 		log.Println("\"host\" not defined in config -> using default")
 		host = hostDefault
@@ -44,6 +43,9 @@ func Start(host string, serveFrontend bool, frontendPath string, allowedAPIKeys 
 	// API router
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/ping", pingHandler).Methods("GET")
+	apiRouter.HandleFunc("/dashboard/title", titleHandlerWith(dashboardTitle)).Methods("GET")
+	apiRouter.HandleFunc("/dashboard/logo", imageHandlerWith(logoPath)).Methods("GET")
+	// Service status API
 	apiRouter.HandleFunc("/services/latest", latestHandler).Methods("GET")
 	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
 	// message API subrouter (uses authentication)

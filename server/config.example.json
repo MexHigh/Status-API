@@ -1,4 +1,6 @@
 {
+    "dashboard_title": "My service status",
+    "dashboard_logo_path": "logo.png",
     "notifiers": {
         "log": {}
     },

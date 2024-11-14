@@ -16,11 +16,8 @@ type Response struct {
 	Response interface{} `json:"response,omitempty"`
 }
 
-func respondInstance(w *http.ResponseWriter, inst interface{}, statusCode int) {
-	wrapped := Response{
-		nil,
-		inst,
-	}
+func respondData(w *http.ResponseWriter, inst interface{}, statusCode int) {
+	wrapped := Response{nil, inst}
 	bytes, err := json.MarshalIndent(wrapped, "", "    ")
 	if err != nil {
 		panic(err)
@@ -30,10 +27,7 @@ func respondInstance(w *http.ResponseWriter, inst interface{}, statusCode int) {
 
 func respondError(w *http.ResponseWriter, err error, statusCode int) {
 	errString := err.Error()
-	wrapped := Response{
-		&errString,
-		nil,
-	}
+	wrapped := Response{&errString, nil}
 	bytes, err := json.MarshalIndent(wrapped, "", "    ")
 	if err != nil {
 		panic(err)
