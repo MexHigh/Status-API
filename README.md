@@ -36,8 +36,8 @@ By default, all services are checked in a 120 seconds interval.
 The Status API can inform you if one of your services goes down. Just list the Protocol Checkers, the so-called Notifiers are modular, too. Currently, the following Notifiers are supported:
 - **Log** (Default Notifier, just logs to STDOUT)
 - **[Gotify Server](https://gotify.net/)**
+- **Telegram**
 - **E-Mail** (coming soon, see #2)
-- **Telegram** (coming soon, see #55)
 
 
 ## Configuration

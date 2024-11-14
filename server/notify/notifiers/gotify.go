@@ -12,11 +12,6 @@ import (
 )
 
 const (
-	downNotificationTitle = "Service '%s' is down!"
-	downNotificationMsg   = "Reported at: %s\nReason: %s"
-	upNotificationTitle   = "Service '%s' is up again!"
-	upNotificationMsg     = "Reported at: %s\nWas down for: %s)"
-
 	defaultPriorty = 9
 )
 
@@ -127,7 +122,7 @@ func (g *Gotify) customPriority() (int, error) {
 
 func (g *Gotify) NotifyDown(serviceName string, reportedDownAt time.Time, reason string) error {
 	title := fmt.Sprintf(downNotificationTitle, serviceName)
-	msg := fmt.Sprintf(downNotificationMsg, reportedDownAt.Local().String(), reason)
+	msg := fmt.Sprintf(downNotificationMsg, reportedDownAt.Local().Format(dateTimeFormat), reason)
 	if err := g.gotifySend(title, msg); err != nil {
 		return err
 	}
@@ -136,7 +131,7 @@ func (g *Gotify) NotifyDown(serviceName string, reportedDownAt time.Time, reason
 
 func (g *Gotify) NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration) error {
 	title := fmt.Sprintf(upNotificationTitle, serviceName)
-	msg := fmt.Sprintf(upNotificationMsg, reportedDownAt.Local().String(), wasDownFor.String())
+	msg := fmt.Sprintf(upNotificationMsg, reportedDownAt.Local().Format(dateTimeFormat), wasDownFor.String())
 	if err := g.gotifySend(title, msg); err != nil {
 		return err
 	}
@@ -160,7 +155,10 @@ func (g *Gotify) UnmarshalConfig(raw json.RawMessage) error {
 // Interface guard (CAUTION: This interface guard does
 // not detect, if a required function is implemented for
 // the reciever type, which is invalid!)
-var _ notify.ConfigurableNotifier = (*Gotify)(nil)
+var (
+	_ notify.Notifier             = (*Gotify)(nil)
+	_ notify.ConfigurableNotifier = (*Gotify)(nil)
+)
 
 // Register notifier
 func init() {

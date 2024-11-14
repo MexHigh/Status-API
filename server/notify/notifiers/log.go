@@ -17,7 +17,7 @@ func (Log) NotifyDown(serviceName string, reportedDownAt time.Time, reason strin
 }
 
 func (Log) NotifyUp(serviceName string, reportedDownAt time.Time, wasDownFor time.Duration) error {
-	log.Printf("Service '%s' is UP again! Was down since %s for %s", serviceName, reportedDownAt.Local().String(), wasDownFor.String())
+	log.Printf("Service '%s' is UP again! Was down since %s for %s", serviceName, reportedDownAt.Local().Format(dateTimeFormat), wasDownFor.String())
 	return nil
 }
 
