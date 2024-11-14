@@ -37,6 +37,7 @@ The Status API can inform you if one of your services goes down. Just list the P
 - **Log** (Default Notifier, just logs to STDOUT)
 - **[Gotify Server](https://gotify.net/)**
 - **E-Mail** (coming soon, see #2)
+- **Telegram** (coming soon, see #55)
 
 
 ## Configuration
@@ -46,7 +47,6 @@ The Status API is configured via a single `config.json` file. Visit the [reposit
 
 ## Tech stack
 
-The frontend was built with `React 17.0.1` and `craco 6.1.1` using `node v16.20.2`. For styling, Tailwind CSS was used.
+The frontend was built with `React 18.3.1` using `node v22.9.0`. For styling, Tailwind CSS was used.
 
-The server (API backend) was built using `go 1.20`.
-
+The server (API backend) was built using `go 1.23.3`.

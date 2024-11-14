@@ -1,6 +1,6 @@
 module status-api
 
-go 1.20
+go 1.23.3
 
 require (
 	github.com/Tnze/go-mc v1.20.2

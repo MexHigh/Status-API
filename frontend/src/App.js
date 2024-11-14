@@ -16,7 +16,6 @@ import "../node_modules/@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
 
 export default function App() {
-
 	const [latest, setLatest] = useState()
 	const [timeline, setTimeline] = useState()
 
