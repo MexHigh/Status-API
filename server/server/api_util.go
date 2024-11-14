@@ -11,11 +11,7 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 
 func titleHandlerWith(title string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if title == "" {
-			respondData(&w, "Service Status", http.StatusOK)
-		} else {
-			respondData(&w, title, http.StatusOK)
-		}
+		respondData(&w, title, http.StatusOK)
 	}
 }
 

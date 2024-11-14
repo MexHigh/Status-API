@@ -56,5 +56,23 @@ func ParseConfig(filename string) (*Config, error) {
 		return nil, err
 	}
 
+	if err := c.setDefaults(); err != nil {
+		return nil, err
+	}
+
 	return &c, nil
+}
+
+func (c *Config) setDefaults() error {
+	// TODO remove all default things and put 
+	// it here and enforce stuff with error
+	
+	if c.FrontendTitle == "" {
+		c.FrontendTitle = "Service Status"
+	}
+	if c.FrontendLogoPath == "" {
+		c.FrontendLogoPath = "logo.png"
+	}
+
+	return nil
 }
