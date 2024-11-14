@@ -7,8 +7,8 @@ module.exports = {
             "'unsafe-inline'",
             "data:"
         ],
-        "image-src": [
-            "*"
+        "img-src": [
+            "blob:"
         ]
     }
 }
