@@ -16,16 +16,16 @@ type ServiceConfig struct {
 // Config mirrors the config.json file which holds
 // a dictionary of services with their ServiceConfigs
 type Config struct {
-	Host              string                     `json:"host,omitempty"`
-	DBPath            string                     `json:"db_path,omitempty"`
-	CheckInterval     int                        `json:"check_interval,omitempty"`
-	NoFrontend        bool                       `json:"no_frontend,omitempty"`
-	FrontendPath      string                     `json:"frontend_path,omitempty"`
-	DashboardTitle    string                     `json:"dashboard_title,omitempty"`
-	DashboardLogoPath string                     `json:"dashboard_logo_path,omitempty"`
-	AllowedAPIKeys    []string                   `json:"allowed_api_keys,omitempty"`
-	Notifiers         map[string]json.RawMessage `json:"notifiers,omitempty"`
-	Services          map[string]ServiceConfig   `json:"services"`
+	Host             string                     `json:"host,omitempty"`
+	DBPath           string                     `json:"db_path,omitempty"`
+	CheckInterval    int                        `json:"check_interval,omitempty"`
+	NoFrontend       bool                       `json:"no_frontend,omitempty"`
+	FrontendPath     string                     `json:"frontend_path,omitempty"`
+	FrontendTitle    string                     `json:"frontend_title,omitempty"`
+	FrontendLogoPath string                     `json:"frontend_logo_path,omitempty"`
+	AllowedAPIKeys   []string                   `json:"allowed_api_keys,omitempty"`
+	Notifiers        map[string]json.RawMessage `json:"notifiers,omitempty"`
+	Services         map[string]ServiceConfig   `json:"services"`
 }
 
 // ForService returns the ServiceConfig for a specific

@@ -1,6 +1,6 @@
 {
-    "dashboard_title": "My service status",
-    "dashboard_logo_path": "logo.png",
+    "frontend_title": "My service status",
+    "frontend_logo_path": "logo.png",
     "notifiers": {
         "log": {}
     },

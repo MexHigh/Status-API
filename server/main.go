@@ -80,8 +80,8 @@ func main() {
 	if err := server.Start(
 		c.Host,
 		c.FrontendPath,
-		c.DashboardTitle,
-		c.DashboardLogoPath,
+		c.FrontendTitle,
+		c.FrontendLogoPath,
 		!c.NoFrontend,
 		c.AllowedAPIKeys,
 	); err != nil {
