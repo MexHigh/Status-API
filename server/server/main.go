@@ -3,41 +3,13 @@ package server
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 )
 
-const hostDefault = "0.0.0.0:3002"
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func init() {
-	rand.Seed(time.Now().Unix())
-}
-
 // Start starts the API and the Frontend server
 func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bool, allowedAPIKeys []string) error {
-	if host == "" {
-		log.Println("\"host\" not defined in config -> using default")
-		host = hostDefault
-	}
-
-	if len(allowedAPIKeys) == 0 {
-		log.Println("No \"allowed_api_keys\" defined -> genereting a temporary one")
-
-		b := make([]rune, 30)
-		for i := range b {
-			b[i] = letterRunes[rand.Intn(len(letterRunes))]
-		}
-		newKey := string(b)
-		allowedAPIKeys = []string{newKey}
-
-		log.Printf("Your temporary API key is '%s' (keep in mind that it will be regenerated after a restart if you do not generate one by yourself)", newKey)
-	}
-
 	// endpoints
 	router := mux.NewRouter()
 	// API router
@@ -59,13 +31,11 @@ func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bo
 	router.HandleFunc("/messages.atom", rssShowHandler).Methods("GET")
 	// frontend router
 	if serveFrontend {
-		if frontendPath == "" {
-			// no "using default" message here
-			frontendPath = "../frontend/build"
+		addReactRoute := func(path string) {
+			router.PathPrefix(path).Handler(http.StripPrefix(path, http.FileServer(http.Dir(frontendPath))))
 		}
-		router.PathPrefix("/").Handler(
-			http.FileServer(http.Dir(frontendPath)),
-		)
+		addReactRoute("/admin")
+		addReactRoute("/")
 	}
 
 	// serve

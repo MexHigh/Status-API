@@ -73,8 +73,8 @@ func main() {
 	}
 
 	log.Println("Starting trigger jobs")
-	go schedules.StartCheckTriggerJob(c)
-	go schedules.StartArchiveTriggerJob(c)
+	go schedules.StartCheckTriggerJob(*c)
+	go schedules.StartArchiveTriggerJob()
 
 	log.Println("Starting server")
 	if err := server.Start(

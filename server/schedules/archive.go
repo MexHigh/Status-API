@@ -11,15 +11,14 @@ import (
 
 // StartArchiveTriggerJob starts the goroutine
 // to trigger archiving of all checks at 23:59 every day
-func StartArchiveTriggerJob(config *structs.Config) {
-
+func StartArchiveTriggerJob() {
 	time.Sleep(time.Duration(3) * time.Second)
 
 	ran := make(chan time.Duration)
 
 	job, err := scheduler.Every(1).Day().At("23:59").SingletonMode().Do(func() {
 		start := time.Now()
-		runArchiving(config)
+		runArchiving()
 		ran <- time.Since(start)
 	})
 	if err != nil {
@@ -30,11 +29,9 @@ func StartArchiveTriggerJob(config *structs.Config) {
 		log.Println("Next archiving scheduled at", job.NextRun())
 		log.Printf("Did archiving (took %d ms)", (<-ran).Milliseconds())
 	}
-
 }
 
-func runArchiving(config *structs.Config) {
-
+func runArchiving() {
 	dayOnly := func() time.Time {
 		now := time.Now()
 		return time.Date(
@@ -59,7 +56,6 @@ func runArchiving(config *structs.Config) {
 	idsToDelete := make([]int, 0)             // holds the IDs used to create the archive result to be deleted later
 
 	for rows.Next() { // iterates over CheckResults
-
 		currentCr := &structs.CheckResultsModel{}
 		database.Con.ScanRows(rows, currentCr)
 
@@ -106,11 +102,8 @@ func runArchiving(config *structs.Config) {
 					lastDownReason[name] = service.Reason
 				}
 			}
-
 		}
-
 		idsToDelete = append(idsToDelete, int(currentCr.ID))
-
 	}
 
 	rows.Close()
@@ -157,5 +150,4 @@ func runArchiving(config *structs.Config) {
 		// DELETE FROM archive_results_models WHERE ID IN (...);
 		database.Con.Delete(&older)
 	}
-
 }

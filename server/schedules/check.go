@@ -11,25 +11,17 @@ import (
 	"status-api/structs"
 )
 
-const checkIntervalDefault = 120 // two minutes
-
 // StartCheckTriggerJob starts the goroutine
 // to trigger regular checks
-func StartCheckTriggerJob(config *structs.Config) {
+func StartCheckTriggerJob(config structs.Config) {
 	// defer initial check to let the API server start
 	time.Sleep(time.Duration(5) * time.Second)
 
-	// set default interval if not defined in config.json
-	checkInterval := config.CheckInterval
-	if checkInterval == 0 {
-		log.Println("\"check_interval\" not defined in config -> using default")
-		checkInterval = checkIntervalDefault
-	}
-	log.Println("Check interval set to", checkInterval, "seconds")
+	log.Println("Check interval set to", config.CheckInterval, "seconds")
 
 	ran := make(chan time.Duration)
 
-	_, err := scheduler.Every(checkInterval).Seconds().SingletonMode().Do(func() {
+	_, err := scheduler.Every(config.CheckInterval).Seconds().SingletonMode().Do(func() {
 		start := time.Now()
 		runChecks(config)
 		ran <- time.Since(start)
@@ -43,7 +35,7 @@ func StartCheckTriggerJob(config *structs.Config) {
 	}
 }
 
-func runChecks(config *structs.Config) {
+func runChecks(config structs.Config) {
 	// buffered channel for test results
 	resultsChan := make(chan structs.CheckResultWithNameAndTime, len(config.Services))
 
