@@ -3,6 +3,7 @@ import Footer from "./components/Footer"
 import Header from "./components/Header"
 import Loading from "./components/Loading"
 import LoginForm from "./components/LoginForm"
+import WidthContainer from "./components/WidthContainer"
 
 export default function Admin() {
 	const [title, setTitle] = useState()
@@ -45,11 +46,16 @@ export default function Admin() {
 	} else {
 		return (
 			<>
-				<header id="header" className="mx-auto max-w-5xl mb-8">
-					<Header 
-						title={title}
-						logoURL={logoURL}
-					/>
+				<header id="header">
+					<WidthContainer
+						className="mb-8"
+					>
+						<Header 
+							title={title}
+							logoURL={logoURL}
+							supplement="Admin Dashboard"
+						/>
+					</WidthContainer>
 				</header>
 				<main className="w-11/12 md:w-5/6 mx-auto">
 					{ apiToken === null ? (

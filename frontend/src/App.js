@@ -5,6 +5,7 @@ import Loading from "./components/Loading"
 import StatusSummary from "./components/StatusSummary"
 import ServiceContainer from "./components/ServiceContainer"
 import MessagePanel from "./components/MessagePanel"
+import WidthContainer from "./components/WidthContainer"
 
 export default function App() {
 	const [title, setTitle] = useState()
@@ -80,12 +81,16 @@ export default function App() {
 
 		return (
 			<>
-				<header id="header" className="mx-auto max-w-5xl mb-8">
-					<Header 
-						title={title}
-						logoURL={logoURL}
-						lastCheckTs={latest.at}
-					/>
+				<header id="header">
+					<WidthContainer
+						className="mb-8"
+					>
+						<Header 
+							title={title}
+							logoURL={logoURL}
+							lastCheckTs={latest.at}
+						/>
+					</WidthContainer>
 				</header>
 				<main className="w-11/12 md:w-5/6 mx-auto">
 					<div id="status-summary" className="mx-auto w-max">
@@ -99,16 +104,16 @@ export default function App() {
 							// map over the latest service report to calculate
 							// the number of ServiceContainer components
 							Object.entries(latest.services).map(([serviceName, latestStatus]) => (
-								<div 
+								<WidthContainer 
 									key={serviceName} 
-									className="mx-auto max-w-5xl my-8"
+									className="my-8"
 								>
 									<ServiceContainer
 										name={serviceName}
 										latest={latestStatus}
 										timeline={serviceTimeline[serviceName] || []}
 									/>
-								</div>
+								</WidthContainer>
 							))
 						}
 					</div>

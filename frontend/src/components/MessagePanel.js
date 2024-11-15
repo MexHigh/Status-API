@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRss } from '@fortawesome/free-solid-svg-icons'
 import MessagePanelMessage from "./MessagePanelMessage"
 import Card from "./Card"
+import WidthContainer from "./WidthContainer"
 
 export default function MessagePanel() {
     const { data } = useAtomFeed("/messages.atom")
@@ -26,7 +27,7 @@ export default function MessagePanel() {
 
     const reactEntries = entries?.map(item => {
         return (
-            <div className="mx-auto max-w-5xl my-4">
+            <WidthContainer className="my-4">
                 <MessagePanelMessage 
                     key={item.id} 
                     title={item.title.value} 
@@ -34,13 +35,13 @@ export default function MessagePanel() {
                     content={item.content?.value}
                     updated={item.updated}
                 />
-            </div>
+            </WidthContainer>
         )
     })
 
     return (
         <>
-            <div className="mx-auto max-w-5xl my-12 py-4">
+            <WidthContainer className="my-12 py-4">
                 <div className="flex gap-4 items-baseline ml-2">
                     <p className="text-xl">
                         Messages
@@ -58,14 +59,14 @@ export default function MessagePanel() {
                 <div>
                     { entries && entries.length > 0
                         ? reactEntries
-                        : <div className="mx-auto max-w-5xl my-4">
+                        : <div className="my-4">
                             <Card>
                                 No unresolved{ showResolved && " or resolved" } messages posted
                             </Card>
                         </div>
                     }
                 </div>
-            </div>
+            </WidthContainer>
         </>
     )
 }
