@@ -8,7 +8,7 @@ import WidthContainer from "./components/WidthContainer"
 export default function Admin() {
 	const [title, setTitle] = useState()
 	const [logoURL, setLogoURL] = useState()
-    const [apiToken, setApiToken] = useState(undefined) // once loaded either "null" or "string"
+    const [apiKey, setApiKey] = useState(undefined) // once loaded either "null" or "string"
 
 	const getTitleAndLogo = () => {
 		fetch("/api/dashboard/title")
@@ -31,17 +31,17 @@ export default function Admin() {
 			})
 	}
 
-    const tryGetApiToken = () => {
-        let key = localStorage.getItem('status_api_key')
-        setApiToken(key) // key is null if not found
+    const tryGetApiKey = () => {
+        let key = localStorage.getItem("status-api-key")
+        setApiKey(key) // key is null if not found
     }
 
 	useEffect(() => {
 		getTitleAndLogo()
-        tryGetApiToken()
+        tryGetApiKey()
 	}, [])
 
-	if (!title || !logoURL || apiToken === undefined) {
+	if (!title || !logoURL || apiKey === undefined) {
 		return <Loading />
 	} else {
 		return (
@@ -58,8 +58,13 @@ export default function Admin() {
 					</WidthContainer>
 				</header>
 				<main className="w-11/12 md:w-5/6 mx-auto">
-					{ apiToken === null ? (
-                        <LoginForm />
+					{ apiKey === null ? (
+                        <LoginForm
+							setApiKey={key => {
+								localStorage.setItem("status-api-key", key)
+								setApiKey(key)
+							}}
+						/>
                     ) : (
                         <div>
                             <p>Logged in!</p>

@@ -4,12 +4,28 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/sethvargo/go-limiter/httplimit"
+	"github.com/sethvargo/go-limiter/memorystore"
 )
 
 // Start starts the API and the Frontend server
 func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bool, allowedAPIKeys []string) error {
+	// create store for rate limiting
+	store, err := memorystore.New(&memorystore.Config{
+		Tokens:   15,
+		Interval: time.Minute,
+	})
+	if err != nil {
+		return err
+	}
+	limiter, err := httplimit.NewMiddleware(store, httplimit.IPKeyFunc())
+	if err != nil {
+		return err
+	}
+
 	// endpoints
 	router := mux.NewRouter()
 	// API router
@@ -22,10 +38,12 @@ func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bo
 	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
 	// Auth API
 	authRouter := apiRouter.PathPrefix("/auth").Subrouter()
+	authRouter.Use(limiter.Handle)
 	authRouter.HandleFunc("/api-key/test", makeAPIKeyAuthOkHandler(allowedAPIKeys)).Methods("POST")
 	// message API subrouter (uses authentication)
 	messageAPIRouter := apiRouter.NewRoute().Subrouter()
 	messageAPIRouter.Use(makeAPIKeyAuthMiddleware(allowedAPIKeys))
+	messageAPIRouter.Use(limiter.Handle)
 	messageAPIRouter.HandleFunc("/messages", rssListMessagesHandler).Methods("GET")
 	messageAPIRouter.HandleFunc("/message", rssCreateMessageHandler).Methods("POST")
 	messageAPIRouter.HandleFunc("/message/{db_id}", rssChangeMessageHandler).Methods("PATCH")
