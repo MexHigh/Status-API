@@ -20,6 +20,9 @@ func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bo
 	// Service status API
 	apiRouter.HandleFunc("/services/latest", latestHandler).Methods("GET")
 	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
+	// Auth API
+	authRouter := apiRouter.PathPrefix("/auth").Subrouter()
+	authRouter.HandleFunc("/api-key/test", makeAPIKeyAuthOkHandler(allowedAPIKeys)).Methods("POST")
 	// message API subrouter (uses authentication)
 	messageAPIRouter := apiRouter.NewRoute().Subrouter()
 	messageAPIRouter.Use(makeAPIKeyAuthMiddleware(allowedAPIKeys))
