@@ -4,6 +4,7 @@ import Header from "./components/Header"
 import Loading from "./components/Loading"
 import LoginForm from "./components/LoginForm"
 import WidthContainer from "./components/WidthContainer"
+import AdminMessagePanel from "./components/AdminMessagePanel"
 
 export default function Admin() {
 	const [title, setTitle] = useState()
@@ -47,9 +48,7 @@ export default function Admin() {
 		return (
 			<>
 				<header id="header">
-					<WidthContainer
-						className="mb-8"
-					>
+					<WidthContainer className="mb-8">
 						<Header 
 							title={title}
 							logoURL={logoURL}
@@ -58,18 +57,20 @@ export default function Admin() {
 					</WidthContainer>
 				</header>
 				<main className="w-11/12 md:w-5/6 mx-auto">
-					{ apiKey === null ? (
-                        <LoginForm
-							setApiKey={key => {
-								localStorage.setItem("status-api-key", key)
-								setApiKey(key)
-							}}
-						/>
-                    ) : (
-                        <div>
-                            <p>Logged in!</p>
-                        </div>
-                    )}
+					<WidthContainer>
+						{ apiKey === null ? (
+							<LoginForm
+								setApiKey={key => {
+									localStorage.setItem("status-api-key", key)
+									setApiKey(key)
+								}}
+							/>
+						) : (
+							<div id="admin-messages">
+								<AdminMessagePanel />
+							</div>
+						)}
+					</WidthContainer>
 				</main>
 				<footer id="footer">
 					<Footer />

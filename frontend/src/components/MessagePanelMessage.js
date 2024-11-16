@@ -3,10 +3,15 @@ import moment from "moment"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTriangleExclamation, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import Card from "./Card"
+import Button from "./Button"
+import EditMessageModal from "./EditMessageModal"
 
-export default function Message({ title, status, content, updated }) {
-    const [ expanded, setExpanded ] = useState(false)
-    
+export default function MessagePanelMessage({ title, status, content, updated, withEditButtons = false }) {
+    // TODO this thing needs an ID!
+
+    const [expanded, setExpanded] = useState(false)
+    const [modalVisible, setModalVisible] = useState(false)
+
     const toggleExpanded = event => {
         event.preventDefault()
         setExpanded(!expanded)
@@ -15,8 +20,8 @@ export default function Message({ title, status, content, updated }) {
     return (
         <Card>
             <details open={expanded}>
-                <summary 
-                    onClick={toggleExpanded} 
+                <summary
+                    onClick={toggleExpanded}
                     className="cursor-pointer flex justify-between items-baseline"
                 >
                     <span>
@@ -24,18 +29,18 @@ export default function Message({ title, status, content, updated }) {
                             <FontAwesomeIcon
                                 icon={faAngleDown}
                                 className="text-gray-300"
-                                rotation={ expanded ? 80 : 270}
+                                rotation={expanded ? 90 : 270}
                             />
                         </span>
                         <span className="mx-2">
-                            { status === "Status: RESOLVED"
-                                ? <FontAwesomeIcon 
-                                    icon={faCheck} 
+                            {status === "Status: RESOLVED"
+                                ? <FontAwesomeIcon
+                                    icon={faCheck}
                                     className="text-green-400"
                                     fixedWidth
                                 />
-                                : <FontAwesomeIcon 
-                                    icon={faTriangleExclamation} 
+                                : <FontAwesomeIcon
+                                    icon={faTriangleExclamation}
                                     className="text-red-400"
                                     fixedWidth
                                 />
@@ -45,7 +50,7 @@ export default function Message({ title, status, content, updated }) {
                             {title}
                         </span>
                     </span>
-                    { !expanded &&
+                    {!expanded &&
                         <span className="text-gray-400 hidden md:block flex-none">
                             {moment(updated).fromNow()}
                         </span>
@@ -53,13 +58,37 @@ export default function Message({ title, status, content, updated }) {
                 </summary>
                 <div className="p-4 flex flex-col gap-2">
                     <p className="text-gray-400">
-                        <span>Last update: </span> 
+                        <span>Last update: </span>
                         <span>{moment(updated).calendar()}</span>
                     </p>
                     <p>
-                        { status === "Status: RESOLVED" && <span className="font-bold">[Resolved] </span> }
-                        { content || "No content" }
+                        {status === "Status: RESOLVED" && <span className="font-bold">[Resolved] </span>}
+                        {content || "No content"}
                     </p>
+                    {withEditButtons && (
+                        <>
+                            <EditMessageModal 
+                                isVisible={modalVisible} 
+                                setIsVisible={setModalVisible}
+                            />
+                            <div className="mt-4 flex gap-4">
+                                <Button 
+                                    text="Edit" 
+                                    onClick={() => {
+                                        setModalVisible(true)
+                                    }}
+                                    wFull={false}
+                                />
+                                <Button
+                                    text="Delete"
+                                    onClick={() => {
+                                        console.log("Todo")
+                                    }}
+                                    wFull={false}
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
             </details>
         </Card>
