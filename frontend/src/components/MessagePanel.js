@@ -27,7 +27,7 @@ export default function MessagePanel() {
 
     const reactEntries = entries?.map(item => {
         return (
-            <WidthContainer className="my-4">
+            <WidthContainer className="my-4" key={item.id}>
                 <MessagePanelMessage 
                     key={item.id} 
                     title={item.title.value} 

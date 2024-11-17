@@ -67,7 +67,7 @@ export default function Admin() {
 							/>
 						) : (
 							<div id="admin-messages">
-								<AdminMessagePanel />
+								<AdminMessagePanel apiKey={apiKey} />
 							</div>
 						)}
 					</WidthContainer>

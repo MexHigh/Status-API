@@ -1,13 +1,16 @@
 import React, { useState } from "react"
 import moment from "moment"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faTriangleExclamation, faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faTriangleExclamation, faAngleRight } from '@fortawesome/free-solid-svg-icons'
 import Card from "./Card"
 import Button from "./Button"
 import EditMessageModal from "./EditMessageModal"
 
-export default function MessagePanelMessage({ title, status, content, updated, withEditButtons = false }) {
-    // TODO this thing needs an ID!
+// This component is compatible for both Atom Feed entries and API entries!
+export default function MessagePanelMessage({ id, title, status, content, updated, withEditButtons = false, doPatch, doDelete, doRefetch }) {
+    if (withEditButtons === true && (!id || !doPatch || !doDelete || !doRefetch)) {
+        throw new Error("if 'withEditButtons' is defined, you also need to define 'doPatch(change)', 'doDelete()' and 'doRefetch()'")
+    }
 
     const [expanded, setExpanded] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
@@ -17,6 +20,15 @@ export default function MessagePanelMessage({ title, status, content, updated, w
         setExpanded(!expanded)
     }
 
+    const toggleResolved = () => {
+        doPatch({
+            Resolved: status === "Status: RESOLVED" ? false : true
+        })
+            .then(() => {
+                doRefetch()
+            })
+    }
+    
     return (
         <Card>
             <details open={expanded}>
@@ -27,9 +39,9 @@ export default function MessagePanelMessage({ title, status, content, updated, w
                     <span>
                         <span>
                             <FontAwesomeIcon
-                                icon={faAngleDown}
+                                icon={faAngleRight}
                                 className="text-gray-300"
-                                rotation={expanded ? 90 : 270}
+                                rotation={expanded ? 90 : 0}
                             />
                         </span>
                         <span className="mx-2">
@@ -70,8 +82,19 @@ export default function MessagePanelMessage({ title, status, content, updated, w
                             <EditMessageModal 
                                 isVisible={modalVisible} 
                                 setIsVisible={setModalVisible}
+                                initTitle={title}
+                                initContent={content}
+                                doPatch={(change) => doPatch(change)}
+                                doRefetch={() => doRefetch()}
                             />
-                            <div className="mt-4 flex gap-4">
+                            <div className="mt-2 flex gap-4">
+                                <Button 
+                                    text={ status === "Status: RESOLVED" ? "Unresolve" : "Resolve" } 
+                                    onClick={() => {
+                                        toggleResolved()
+                                    }}
+                                    wFull={false}
+                                />
                                 <Button 
                                     text="Edit" 
                                     onClick={() => {
@@ -82,7 +105,9 @@ export default function MessagePanelMessage({ title, status, content, updated, w
                                 <Button
                                     text="Delete"
                                     onClick={() => {
-                                        console.log("Todo")
+                                        doDelete().then(() => {
+                                            doRefetch()
+                                        })
                                     }}
                                     wFull={false}
                                 />

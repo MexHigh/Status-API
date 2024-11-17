@@ -15,8 +15,8 @@ import (
 func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bool, allowedAPIKeys []string) error {
 	// create store for rate limiting
 	store, err := memorystore.New(&memorystore.Config{
-		Tokens:   15,
-		Interval: time.Minute,
+		Tokens:   10,
+		Interval: 10 * time.Second,
 	})
 	if err != nil {
 		return err

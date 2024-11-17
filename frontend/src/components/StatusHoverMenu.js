@@ -3,7 +3,6 @@ import React from "react"
 import CurrentStatus from "./CurrentStatus"
 
 export default function StatusHoverMenu({ forDay, status, availability, downtimes }) {
-
 	const forDaydateTimeString = moment(forDay).format("ll")
 
     return (
@@ -41,7 +40,6 @@ export default function StatusHoverMenu({ forDay, status, availability, downtime
 }
 
 function Downtime({ from, to, reason }) {
-
 	const fromTime = new Date(from).toLocaleTimeString("de-DE")
 	const toTime = new Date(to).toLocaleTimeString("de-DE")
 
