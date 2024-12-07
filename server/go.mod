@@ -18,6 +18,7 @@ require (
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.6 // indirect
+	github.com/sethvargo/go-limiter v1.0.0 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
 	golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
 )

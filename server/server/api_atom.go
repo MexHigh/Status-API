@@ -114,6 +114,7 @@ func rssCreateMessageHandler(w http.ResponseWriter, r *http.Request) {
 			Title:   respBody.Title,
 			Content: respBody.Content,
 			Created: time.Now(),
+			Updated: time.Now(),
 		},
 	}
 	if respBody.Resolved {
