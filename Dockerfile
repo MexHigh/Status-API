@@ -1,5 +1,5 @@
 # Build Go backend
-FROM golang:1.23.3 AS go-builder
+FROM golang:1.24.9 AS go-builder
 WORKDIR /go/src/app
 COPY server/ .
 RUN go get -d -v ./...

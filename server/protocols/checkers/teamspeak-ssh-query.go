@@ -14,7 +14,6 @@ type TeamspeakSSHQuery struct{}
 
 // Check -
 func (TeamspeakSSHQuery) Check(name string, c *structs.ServiceConfig) (structs.CheckResult, error) {
-
 	// get query address from config
 	var hostPort string
 	if hp, ok := c.ProtocolConfig["query_address"].(string); ok {
