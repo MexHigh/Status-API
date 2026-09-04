@@ -38,7 +38,7 @@ export default function CurrentStatus({ status, forDay, availability, downtimes 
 
 	return (
 		<div>
-			<div ref={setTriggerRef} className={`w-20 md:w-32 ${color} rounded-lg text-center select-none`}>
+			<div ref={setTriggerRef} className={`w-20 md:w-32 h-full ${color} rounded-lg text-center select-none`}>
 				<p>{status}</p>
 			</div>
 			{/* Hover Menu */}
