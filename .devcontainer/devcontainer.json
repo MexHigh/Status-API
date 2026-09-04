@@ -1,9 +1,9 @@
 {
 	"name": "Go",
-	"image": "mcr.microsoft.com/devcontainers/go:0-1.19",
+	"image": "mcr.microsoft.com/devcontainers/go:1.26",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
-			"version": "15"
+			"version": "22"
 		}
 	},
 
