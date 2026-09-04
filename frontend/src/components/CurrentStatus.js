@@ -1,6 +1,25 @@
 import React from "react"
+import { usePopperTooltip } from "react-popper-tooltip"
+import StatusHoverMenu from "./StatusHoverMenu"
 
-export default function CurrentStatus({ status }) {
+/**
+ * Shows the current status of a service as a colored bar. Optionally,
+ * hovering the bar shows the same hover menu the status pills use,
+ * e.g. to observe todays downtimes.
+ * @param {string} status One of "up"|"problems"|"down"
+ * @param {string} forDay Timestamp of the day the optional hover menu shows details for (no hover menu, if undefined)
+ * @param {float} availability The availabilty of the service in percent for that day
+ * @param {Array} downtimes Array of downtimes for that day
+ */
+export default function CurrentStatus({ status, forDay, availability, downtimes }) {
+
+	const { setTriggerRef, setTooltipRef, getTooltipProps, visible } = usePopperTooltip({
+		offset: [0, 12],
+		trigger: "hover",
+		interactive: true,
+		delayHide: 50,
+		delayShow: 100,
+	})
 
 	let color
 	switch (status) {
@@ -18,11 +37,25 @@ export default function CurrentStatus({ status }) {
 	}
 
 	return (
-		<div className={`w-20 md:w-32 ${color} rounded-lg text-center select-none`}>
-			{/*<div className="h-full w-full flex justify-center items-center">*/}
+		<div>
+			<div ref={setTriggerRef} className={`w-20 md:w-32 ${color} rounded-lg text-center select-none`}>
 				<p>{status}</p>
-			{/*</div>*/}
+			</div>
+			{/* Hover Menu */}
+			{ (forDay && visible) && (
+				<div
+					ref={setTooltipRef}
+					{...getTooltipProps()}
+				>
+					<StatusHoverMenu
+						forDay={forDay}
+						status={status}
+						availability={availability}
+						downtimes={downtimes && downtimes.slice(0, 30)}
+					/>
+				</div>
+			)}
 		</div>
 	)
-	
+
 }

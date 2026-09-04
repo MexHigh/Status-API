@@ -12,6 +12,7 @@ export default function App() {
 	const [logoURL, setLogoURL] = useState()
 	const [latest, setLatest] = useState()
 	const [timeline, setTimeline] = useState()
+	const [today, setToday] = useState()
 
 	const getTitleAndLogo = () => {
 		fetch("/api/dashboard/title")
@@ -45,6 +46,11 @@ export default function App() {
 			.then(r => {
 				setTimeline(r.response)
 			})
+		fetch("/api/services/today")
+			.then(r => r.json())
+			.then(r => {
+				setToday(r.response)
+			})
 	}
 
 	useEffect(() => {
@@ -56,7 +62,20 @@ export default function App() {
 		return () => clearInterval(interval)
 	}, [])
 
-	if (!title || !logoURL || !latest || !timeline) {
+	const restructureDay = day => {
+		const perService = {}
+		for (const [name, status] of Object.entries(day.services)) {
+			// append the status for a service and
+			// slice in the "at" timestamp
+			perService[name] = {
+				at: day.at,
+				...status,
+			}
+		}
+		return perService
+	}
+
+	if (!title || !logoURL || !latest || !timeline || !today) {
 		return <Loading />
 	} else {
 		// restructure the response from /api/services/timeline
@@ -65,19 +84,16 @@ export default function App() {
 		let serviceTimeline = {}
 		timeline.forEach(day => {
 			// iterates over every service reported in one day
-			for (const [name, status] of Object.entries(day.services)) {
+			for (const [name, status] of Object.entries(restructureDay(day))) {
 				// create the timeline array, if it does not exist
 				if (!serviceTimeline[name]) {
 					serviceTimeline[name] = []
 				}
-				// append the status for a service and
-				// slice in the "at" timestamp
-				serviceTimeline[name].push({
-					at: day.at,
-					...status,
-				})
+				serviceTimeline[name].push(status)
 			}
 		})
+		// reconstruct today answer
+		const todayPerService = restructureDay(today)
 
 		return (
 			<>
@@ -112,6 +128,7 @@ export default function App() {
 										name={serviceName}
 										latest={latestStatus}
 										timeline={serviceTimeline[serviceName] || []}
+										today={todayPerService[serviceName] || {}}
 									/>
 								</WidthContainer>
 							))

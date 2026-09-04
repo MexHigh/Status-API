@@ -36,6 +36,7 @@ func Start(host, frontendPath, dashboardTitle, logoPath string, serveFrontend bo
 	// Service status API
 	apiRouter.HandleFunc("/services/latest", latestHandler).Methods("GET")
 	apiRouter.HandleFunc("/services/timeline", timelineHandler).Methods("GET")
+	apiRouter.HandleFunc("/services/today", todayHandler).Methods("GET")
 	// Auth API
 	authRouter := apiRouter.PathPrefix("/auth").Subrouter()
 	authRouter.Use(limiter.Handle)

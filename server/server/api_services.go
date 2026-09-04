@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"status-api/database"
+	"status-api/schedules"
 	"status-api/structs"
 )
 
@@ -27,4 +28,8 @@ func timelineHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondData(&w, &tl, 200)
+}
+
+func todayHandler(w http.ResponseWriter, r *http.Request) {
+	respondData(&w, schedules.ComputeTodayResults(), 200)
 }

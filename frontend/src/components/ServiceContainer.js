@@ -6,7 +6,7 @@ import StatusPill from "./StatusPill"
 
 // ServiceContainer bundles the service name, StatusPill and
 // CurrentStatus components to create an availability timeline.
-export default function ServiceContainer({ name, latest, timeline }) {
+export default function ServiceContainer({ name, latest, timeline, today }) {
 
 	const [ numOfPills, setNumOfPills ] = useState()
 	const widthRef = useRef()
@@ -62,15 +62,20 @@ export default function ServiceContainer({ name, latest, timeline }) {
 		<Card cRef={widthRef}>
 			{/* First line */}
 			<div className="mb-4 flex justify-between bg-gray-100 rounded-lg">
-				<a 
-					className="text-xl ml-2 truncate" 
-					href={latest.url.startsWith("http://") || latest.url.startsWith("https://") || latest.url.startsWith("ts3server://") ? latest.url : undefined} 
-					target="_blank" 
+				<a
+					className="text-xl ml-2 truncate"
+					href={latest.url.startsWith("http://") || latest.url.startsWith("https://") || latest.url.startsWith("ts3server://") ? latest.url : undefined}
+					target="_blank"
 					rel="noreferrer"
 				>
 					{name}
 				</a>
-				<CurrentStatus status={latest.status} />
+				<CurrentStatus
+					status={latest.status}
+					forDay={today && today.at}
+					availability={today && today.availability}
+					downtimes={today && today.downtimes}
+				/>
 			</div>
 			{/* Second line */}
 			<div className="flex justify-between h-8">

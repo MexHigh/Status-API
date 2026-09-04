@@ -1,6 +1,7 @@
 package schedules
 
 import (
+	"database/sql"
 	"log"
 	"math"
 	"time"
@@ -8,6 +9,18 @@ import (
 	"status-api/database"
 	"status-api/structs"
 )
+
+// noDowntimeReason is a dummy reason used to mark "no downtime",
+// so that downtimes without a reason won't get concatenated if
+// there is an error at the first time of checking
+const noDowntimeReason = "V2VyIGRhcyBsaWVzdCBpc3QgZG9vZiA7KQ=="
+
+// upsAndDowns counts up-/downtimes of a service and
+// collects its downtime intervals (only used locally)
+type upsAndDowns struct {
+	Ups, Downs int
+	Downtimes  []structs.Downtime
+}
 
 // StartArchiveTriggerJob starts the goroutine
 // to trigger archiving of all checks at 23:59 every day
@@ -31,80 +44,17 @@ func StartArchiveTriggerJob() {
 	}
 }
 
+// aggregate all check results (todays entries; older ones may
+// remain if a previous archiving run was missed)
 func runArchiving() {
-	dayOnly := func() time.Time {
-		now := time.Now()
-		return time.Date(
-			now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location(),
-		)
-	}
+	udsMap := make(map[string]*upsAndDowns)
+	lastDownReason := make(map[string]string)
 
-	// get rows
-	rows, err := database.Con.Model(&structs.CheckResultsModel{}).Rows() // TODO maybe only get todays entries?
+	rows, err := database.Con.Model(&structs.CheckResultsModel{}).Order("id").Rows() // TODO maybe only get todays entries?
 	if err != nil {
 		panic(err) // should never happen
 	}
-
-	// counts up-/downtimes (only used locally)
-	type upsAndDowns struct {
-		Ups, Downs int
-		Downtimes  []structs.Downtime
-	}
-
-	udsMap := make(map[string]*upsAndDowns)   // maps service name to UpsAndDowns counter
-	lastDownReason := make(map[string]string) // maps the last reason of downtime to a service name
-	idsToDelete := make([]int, 0)             // holds the IDs used to create the archive result to be deleted later
-
-	for rows.Next() { // iterates over CheckResults
-		currentCr := &structs.CheckResultsModel{}
-		database.Con.ScanRows(rows, currentCr)
-
-		for name, service := range currentCr.Data.Services { // iterates over one service in a CheckResults (yields service name and CheckResult)
-
-			var uds *upsAndDowns                // local uds object (pointer to map entry) for shorter variable names
-			if locUds, ok := udsMap[name]; ok { // checks if upsAndDowns object exists
-				uds = locUds
-			} else { // otherwise create a new one
-				locUds = &upsAndDowns{
-					Downtimes: make([]structs.Downtime, 0),
-				}
-				udsMap[name] = locUds // save new upsAndDowns in map
-				uds = udsMap[name]    // reference the newly created upsAndDowns
-			}
-			// initialize an empty lastDownReason with a random string to prevent
-			// that downtimes without a reason won't get concatenated if there is
-			// an error at the first time of checking
-			if lastDownReason[name] == "" {
-				lastDownReason[name] = "V2VyIGRhcyBsaWVzdCBpc3QgZG9vZiA7KQ=="
-			}
-
-			// this is where the archiving magic happens
-			if service.Status == structs.Up {
-				uds.Ups++
-				// reset lastDownReason to something random to prevent the concatenation of
-				// downtimes if a previous error occures at a later time again
-				lastDownReason[name] = "V2VyIGRhcyBsaWVzdCBpc3QgZG9vZiA7KQ=="
-			} else {
-				uds.Downs++
-				// check if previous downtime should be ajusted, or if a new one should be created
-				if lastDownReason[name] == service.Reason {
-					// if the reason of the last downtime is the same as this one just
-					// overwrite the latter 'To' field to the time of the current downtime
-					lastDowntime := &uds.Downtimes[len(uds.Downtimes)-1] // gets pointer to last downtime
-					lastDowntime.To = currentCr.Data.At
-				} else {
-					// if the reason is a new one, create a new downtime object and overwrite the lastDownReason
-					uds.Downtimes = append(uds.Downtimes, structs.Downtime{
-						From:   currentCr.Data.At,
-						To:     currentCr.Data.At,
-						Reason: service.Reason,
-					})
-					lastDownReason[name] = service.Reason
-				}
-			}
-		}
-		idsToDelete = append(idsToDelete, int(currentCr.ID))
-	}
+	idsToDelete := collectResults(rows, udsMap, lastDownReason)
 
 	rows.Close()
 	if len(idsToDelete) > 0 { // suppresses error logs
@@ -113,25 +63,7 @@ func runArchiving() {
 	}
 
 	// calulate availabilities etc.
-	resultServices := make(map[string]structs.ArchiveResult)
-
-	for name, uds := range udsMap {
-		availabilityFull := float64(uds.Ups) / float64(uds.Ups+uds.Downs)
-		availability := math.Round(availabilityFull*10000) / 10000 // rounds to four decimal places
-		var status structs.Status
-		if availability > 0.97 {
-			status = structs.Up
-		} else if availability > 0.8 {
-			status = structs.Problems
-		} else {
-			status = structs.Down
-		}
-		resultServices[name] = structs.ArchiveResult{
-			Status:       status,
-			Availability: availability,
-			Downtimes:    uds.Downtimes,
-		}
-	}
+	resultServices := buildArchiveResults(udsMap)
 
 	// store in database
 	resultModel := &structs.ArchiveResultsModel{
@@ -150,4 +82,123 @@ func runArchiving() {
 		// DELETE FROM archive_results_models WHERE ID IN (...);
 		database.Con.Delete(&older)
 	}
+}
+
+// ComputeTodayResults aggregates the check results of the current
+// day into an ArchiveResults object. This way, todays downtime
+// events can be observed before the archiving job runs at the end
+// of the day. Services without any check result today are omitted.
+func ComputeTodayResults() *structs.ArchiveResults {
+	// aggregate todays check results
+	udsMap := make(map[string]*upsAndDowns)
+	lastDownReason := make(map[string]string)
+	today := dayOnly()
+
+	var todaysChecks []structs.CheckResultsModel
+	database.Con.Model(&structs.CheckResultsModel{}).Order("id").Find(&todaysChecks)
+	for i := range todaysChecks {
+		if todaysChecks[i].Data.At.Before(today) {
+			continue // not from today (leftover of a missed archiving run)
+		}
+		aggregateCheckResults(&todaysChecks[i].Data, udsMap, lastDownReason)
+	}
+
+	return &structs.ArchiveResults{
+		At:       today,
+		Services: buildArchiveResults(udsMap),
+	}
+}
+
+// collectResults iterates over the given rows of CheckResultsModels,
+// aggregates them into udsMap and returns the IDs of all visited rows.
+func collectResults(rows *sql.Rows, udsMap map[string]*upsAndDowns, lastDownReason map[string]string) (ids []int) {
+	ids = make([]int, 0)
+	for rows.Next() { // iterates over CheckResults
+		currentCr := &structs.CheckResultsModel{}
+		database.Con.ScanRows(rows, currentCr)
+		aggregateCheckResults(&currentCr.Data, udsMap, lastDownReason)
+		ids = append(ids, int(currentCr.ID))
+	}
+	return
+}
+
+// aggregateCheckResults merges a single CheckResults entry
+// (one point in time, all services) into udsMap. Consecutive
+// downtimes with the same reason are concatenated.
+func aggregateCheckResults(cr *structs.CheckResults, udsMap map[string]*upsAndDowns, lastDownReason map[string]string) {
+	for name, service := range cr.Services {
+
+		uds, ok := udsMap[name]
+		if !ok { // create the counter, if it does not exist yet
+			uds = &upsAndDowns{
+				Downtimes: make([]structs.Downtime, 0),
+			}
+			udsMap[name] = uds
+		}
+		// initialize an empty lastDownReason with a dummy string
+		// (see noDowntimeReason)
+		if lastDownReason[name] == "" {
+			lastDownReason[name] = noDowntimeReason
+		}
+
+		// this is where the aggregation magic happens
+		if service.Status == structs.Up {
+			uds.Ups++
+			// reset lastDownReason to the dummy to prevent the concatenation
+			// of downtimes if a previous error occurs at a later time again
+			lastDownReason[name] = noDowntimeReason
+		} else {
+			uds.Downs++
+			// check if the previous downtime should be adjusted, or if a new one should be created
+			if lastDownReason[name] == service.Reason {
+				// if the reason of the last downtime is the same as this one just
+				// overwrite the latter 'To' field to the time of the current downtime
+				lastDowntime := &uds.Downtimes[len(uds.Downtimes)-1]
+				lastDowntime.To = cr.At
+			} else {
+				// if the reason is a new one, create a new downtime object and overwrite the lastDownReason
+				uds.Downtimes = append(uds.Downtimes, structs.Downtime{
+					From:   cr.At,
+					To:     cr.At,
+					Reason: service.Reason,
+				})
+				lastDownReason[name] = service.Reason
+			}
+		}
+	}
+}
+
+// buildArchiveResults calculates the availabilities and
+// overall statuses from the aggregated upsAndDowns
+func buildArchiveResults(udsMap map[string]*upsAndDowns) map[string]structs.ArchiveResult {
+	resultServices := make(map[string]structs.ArchiveResult)
+	for name, uds := range udsMap {
+		availabilityFull := float64(uds.Ups) / float64(uds.Ups+uds.Downs)
+		availability := math.Round(availabilityFull*10000) / 10000 // rounds to four decimal places
+		resultServices[name] = structs.ArchiveResult{
+			Status:       statusFromAvailability(availability),
+			Availability: availability,
+			Downtimes:    uds.Downtimes,
+		}
+	}
+	return resultServices
+}
+
+// statusFromAvailability maps an availability to an overall
+// status (>97% up, >80% problems, otherwise down)
+func statusFromAvailability(availability float64) structs.Status {
+	if availability > 0.97 {
+		return structs.Up
+	} else if availability > 0.8 {
+		return structs.Problems
+	}
+	return structs.Down
+}
+
+// dayOnly returns the current day at 00:00 local time
+func dayOnly() time.Time {
+	now := time.Now()
+	return time.Date(
+		now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location(),
+	)
 }
