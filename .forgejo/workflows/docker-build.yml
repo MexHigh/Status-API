@@ -1,0 +1,29 @@
+on:
+  push:
+    branches:
+      - master
+
+env:
+  IMAGE_SLUG: ${{ vars.FORGEJO_HOST }}/${{ forgejo.repository }}
+
+jobs:
+  docker-build-and-push:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Lowercase Docker image name
+        id: image_string
+        uses: https://github.com/ASzc/change-string-case-action@d0603cd0a7dd490be678164909f65c7737470a7f
+        with:
+          string: ${{ env.IMAGE_SLUG }}
+      - name: Docker login
+        uses: actions/docker-login-action@v3
+        with:
+          registry: ${{ vars.FORGEJO_HOST }}
+          username: ${{ forgejo.actor }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+      - name: Docker build
+        run: docker build -t ${{ steps.image_string.outputs.lowercase }}:latest .
+      - name: Docker push
+        run: docker push ${{ steps.image_string.outputs.lowercase }}:latest
